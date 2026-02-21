@@ -22,6 +22,5 @@ env/
 # Gunicorn
 gunicorn.sock
 # Dumps
-*.json
 data.json
 .env
