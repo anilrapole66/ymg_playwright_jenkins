@@ -1,0 +1,223 @@
+{% extends "employees/dashboard.html" %}
+
+{% block title %}Leave Approvals{% endblock %}
+
+{% block dashboard_content %}
+
+<style>
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+
+    th, td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 13px;
+    }
+
+    th {
+        background: #cc1939;
+        color: white;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.3px;
+    }
+
+    tr:hover td {
+        background: #f9fafb;
+    }
+
+    .btn-approve {
+        background: #22c55e;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 12px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .btn-reject {
+        background: #ef4444;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 12px;
+        border: none;
+        cursor: pointer;
+    }
+
+    /* ================= MODAL ================= */
+    .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-box {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        width: 360px;
+    }
+
+    .modal-box h3 {
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .modal-box textarea {
+        width: 100%;
+        height: 70px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        padding: 8px;
+        font-size: 13px;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 12px;
+    }
+</style>
+
+<h2>Leave Approvals</h2>
+
+{% if leaves %}
+<table>
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Leave Type</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Applied On</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for leave in leaves %}
+        <tr>
+            <td>{{ leave.employee.full_name }}</td>
+            <td>{{ leave.leave_type.name }}</td>
+            <td>{{ leave.start_date }}</td>
+            <td>{{ leave.end_date }}</td>
+            <td>{{ leave.applied_on|date:"d M Y" }}</td>
+            <td>
+                <!-- APPROVE -->
+                <a href="{% url 'approve_leave' leave.id %}"
+                   class="btn-approve"
+                   onclick="markApproved(this); return true;">
+                    Approve
+                </a>
+
+                <!-- REJECT -->
+                <button class="btn-reject"
+                        onclick="openRejectModal('{{ leave.id }}')">
+                    Reject
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if recent_actions %}
+<div style="
+    margin-top:20px;
+    padding:12px;
+    background:#f9fafb;
+    border-radius:10px;
+    font-size:12px;
+">
+    <strong>Recently Processed</strong>
+    <ul style="margin-top:6px; padding-left:16px;">
+        {% for item in recent_actions %}
+        <li>
+            {{ item.employee.full_name }} –
+            {{ item.leave_type.name }}
+            {% if item.status == "APPROVED" %}
+                <span style="color:#16a34a;">(Approved)</span>
+            {% else %}
+                <span style="color:#dc2626;">(Rejected)</span>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% else %}
+    <div style="text-align:center; padding:25px; color:#6b7280;">
+        🎉 No pending leave requests
+    </div>
+{% endif %}
+
+<!-- ================= REJECT MODAL ================= -->
+<div class="modal" id="rejectModal">
+    <div class="modal-box">
+        <h3>Reject Leave</h3>
+
+        <form method="post" id="rejectForm">
+            {% csrf_token %}
+            <textarea name="comment"
+                      placeholder="Reason for rejection..."
+                      required></textarea>
+
+            <div class="modal-actions">
+                <button type="button"
+                        onclick="closeRejectModal()">
+                    Cancel
+                </button>
+                <button type="submit" class="btn-reject">
+                    Reject
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openRejectModal(leaveId) {
+        const modal = document.getElementById("rejectModal");
+        const form = document.getElementById("rejectForm");
+
+        // IMPORTANT: correct URL
+        form.action = `/admin/leaves/${leaveId}/reject/`;
+
+        modal.style.display = "flex";
+    }
+
+    function closeRejectModal() {
+        document.getElementById("rejectModal").style.display = "none";
+    }
+
+    function markApproved(btn) {
+        btn.innerHTML = "✔ Approved";
+        btn.style.background = "#16a34a";
+        btn.style.pointerEvents = "none";
+    }
+</script>
+
+{% endblock %}

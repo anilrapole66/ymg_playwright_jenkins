@@ -1,0 +1,48 @@
+{% extends "employees/dashboard.html" %}
+{% block dashboard_content %}
+
+<div class="page-wrapper">
+
+<h2 class="page-title">Assign Asset</h2>
+
+<div class="form-card">
+<form method="post">
+{% csrf_token %}
+
+<div class="form-row">
+    <label>Asset</label>
+    <select name="inventory" required>
+        {% for item in inventory %}
+            <option value="{{ item.id }}"
+                {% if item.id|stringformat:"s" == selected_inventory %}selected{% endif %}>
+                {{ item.asset_type }} - {{ item.serial_number }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="form-row">
+    <label>Employee</label>
+    <select name="employee" required>
+        <option value="" disabled selected>Select employee</option>
+        {% for emp in employees %}
+            <option value="{{ emp.id }}">{{ emp.full_name }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="form-row">
+    <label>Received On</label>
+    <input type="date" name="received_on" required>
+</div>
+
+<div class="form-actions">
+    <button type="submit" class="primary-btn">Assign</button>
+    <a href="{% url 'admin_assets' %}" class="cancel-link">Cancel</a>
+</div>
+
+</form>
+</div>
+
+</div>
+{% endblock %}

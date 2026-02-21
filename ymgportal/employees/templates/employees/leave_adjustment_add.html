@@ -1,0 +1,92 @@
+{% extends 'employees/dashboard.html' %}
+
+{% block dashboard_content %}
+
+<style>
+.form-label {
+    font-weight: 600;
+    color: #111111;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* Inputs */
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+
+.form-control:focus {
+    border-color: #cc1939;
+    box-shadow: 0 0 0 3px rgba(204, 25, 57, 0.25);
+    outline: none;
+}
+
+/* Submit button */
+.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: #cc1939;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    transition: 0.2s ease;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background: linear-gradient(135deg, #b51732, #e14b5f);
+}
+
+/* Back link */
+a.back-link {
+    display: block;
+    margin-top: 25px;
+    text-decoration: none;
+    color: #cc1939;
+    text-align: center;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.25s ease;
+}
+
+a.back-link:hover {
+    color: #b51732;
+    text-decoration: underline;
+    transform: translateY(-1px);
+}
+</style>
+
+<div style="max-width:600px; margin:40px auto; background:white; padding:30px;
+            border-radius:12px; box-shadow:0 4px 14px rgba(0,0,0,0.1);">
+
+    <h2 style="text-align:center; color:#111111; margin-bottom:25px;">
+        Add Leave Adjustment – {{ employee.full_name }}
+    </h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label class="form-label">Adjustment Type</label>
+        {{ form.adjustment_type }}
+
+        <label class="form-label">Days (e.g., 2 or -1)</label>
+        {{ form.days }}
+
+        <label class="form-label">Reason</label>
+        {{ form.reason }}
+
+        <button type="submit" class="submit-btn">Save Adjustment</button>
+
+        <a href="{% url 'employee_leave_details' employee.id %}" class="back-link">
+            ← Back to Leave Details
+        </a>
+    </form>
+</div>
+
+{% endblock %}

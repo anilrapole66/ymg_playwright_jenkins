@@ -1,0 +1,204 @@
+{% extends 'employees/manager_dashboard.html' %}
+
+{% block title %}
+    My Team Members
+{% endblock %}
+
+{% block dashboard_content %}
+
+<style>
+    h2 {
+        color: #111;
+        margin: 10px 0 20px 0;
+        text-align: center;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 24px;
+    }
+
+    /* Filters (manager gets ONLY name search filter) */
+    .filters {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .filters input[type="text"] {
+        padding: 8px 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        font-size: 13px;
+        min-width: 250px;
+        outline: none;
+        transition: 0.25s ease;
+    }
+
+    .filters input:focus {
+        border-color: #cc1939;
+        box-shadow: 0 0 0 3px rgba(204, 25, 57, 0.10);
+    }
+
+    .filters button {
+        padding: 8px 14px;
+        background-color: #cc1939;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        transition: 0.25s ease;
+    }
+
+    .filters button:hover {
+        background: linear-gradient(135deg, #cc1939, #f36c7a);
+        transform: translateY(-2px);
+    }
+
+    /* Table styling (same as admin table) */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 18px 0 18px 0;
+        background: white;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    }
+
+    th, td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+        font-size: 13px;
+    }
+
+    th {
+        background: #cc1939;
+        color: white;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+    }
+
+    tr:nth-child(odd) {
+        background: #f8fcff;
+    }
+
+    tr:hover td {
+        background: #eef5ff;
+    }
+
+    a {
+        color: #cc1939;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    a:hover { color: #a3152d; }
+
+    /* Pagination */
+    .pagination-controls {
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    .pagination-controls button {
+        background-color: #cc1939;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        color: white;
+        margin: 0 5px;
+        font-size: 13px;
+        transition: 0.25s ease;
+    }
+    .pagination-controls button:hover {
+        background: linear-gradient(135deg, #cc1939, #f36c7a);
+    }
+    .pagination-controls button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+</style>
+
+
+<h2>My Team Members</h2>
+
+<!-- Filters Section -->
+<form method="get" class="filters">
+    <input type="text" name="q" placeholder="Search employee..." value="{{ query }}">
+    <button type="submit">Search</button>
+</form>
+
+<!-- Pagination Controls -->
+<div class="pagination-controls">
+    <button id="prev-btn" type="button">Previous</button>
+    <span id="page-number">Page 1</span>
+    <button id="next-btn" type="button">Next</button>
+</div>
+
+<!-- Employee List Table -->
+<table id="employeeTable">
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Main Account</th>
+        <th>End Client/Team</th>
+    </tr>
+
+    {% for emp in employees %}
+        <tr>
+            <td><a href="{% url 'employee_detail' emp.pk %}" >{{ emp.full_name }}</a></td>
+            <td>{{ emp.email }}</td>
+            <td>{{ emp.main_account.name }}</td>
+            <td>{{ emp.end_client.name }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const rows = Array.from(document.querySelectorAll("#employeeTable tr")).slice(1);
+    const rowsPerPage = 20;
+    let currentPage = 1;
+
+    function renderTable() {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        rows.forEach((row, index) => {
+            row.style.display = (index >= start && index < end) ? "" : "none";
+        });
+
+        document.getElementById("page-number").innerText = `Page ${currentPage}`;
+        document.getElementById("prev-btn").disabled = (currentPage === 1);
+        document.getElementById("next-btn").disabled = (end >= rows.length);
+    }
+
+    document.getElementById("prev-btn").addEventListener("click", function () {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    });
+
+    document.getElementById("next-btn").addEventListener("click", function () {
+        if ((currentPage * rowsPerPage) < rows.length) {
+            currentPage++;
+            renderTable();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    });
+
+    renderTable();
+});
+</script>
+
+{% endblock %}

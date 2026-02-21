@@ -1,0 +1,173 @@
+{% extends parent_template %}
+{% block dashboard_content %}
+
+<style>
+.dashboard-box {
+    max-width: 1050px;
+    margin: 25px auto;
+    background: white;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Header row: name + actions */
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.header-row h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+}
+
+/* Top-right action buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 8px 14px;
+    background: #cc1939;
+    color: white;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: 0.2s;
+}
+
+.action-btn:hover {
+    background: linear-gradient(135deg, #b51732, #e14b5f);
+}
+/* Info Cards */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.info-item {
+    background: #f8fafc;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.info-item span {
+    font-weight: 600;
+    color: #111;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #111;
+    margin-top: 15px;
+    margin-bottom: 8px;
+}
+
+</style>
+
+<div class="dashboard-box">
+
+    <!-- ========================
+            HEADER BAR
+         ======================== -->
+    <div class="header-row">
+
+        <h2>{{ employee.full_name }}</h2>
+
+        <div class="action-buttons">
+            {% if request.user.is_staff %}
+                <a class="action-btn" href="{% url 'employee_edit' employee.id %}">
+                    Edit
+                </a>
+            {% endif %}
+
+            <a class="action-btn" href="{% url 'employee_leave_details' employee.id %}">
+                Leave Details
+            </a>
+
+            <a class="action-btn" href="{% url 'employee_timesheets' employee.id %}">
+                Timesheets
+            </a>
+
+            {% if request.user.is_staff %}
+    <a class="action-btn" href="{% url 'admin_claims' %}?employee={{ employee.id }}">
+        Claims
+    </a>
+{% endif %}
+        </div>
+
+    </div>
+
+    <!-- ========================
+            BASIC DETAILS
+         ======================== -->
+    <div class="section-title">Basic Information</div>
+
+    <div class="info-grid">
+
+        <div class="info-item"><span>Email:</span> {{ employee.email }}</div>
+        <div class="info-item"><span>Phone:</span> {{ employee.phone|default:"-" }}</div>
+
+        <div class="info-item"><span>Employee ID:</span> {{ employee.employee_serial_id|default:"-" }}</div>
+        <div class="info-item"><span>Customer:</span> {{ employee.main_account.name|default:"-" }}</div>
+
+        <div class="info-item"><span>Designation:</span> {{ employee.work_role }}</div>
+
+        <div class="info-item"><span>Date of Joining:</span> {{ employee.date_of_joining|date:"d M Y" }}</div>
+        <div class="info-item"><span>SOW Start Date:</span> {{ employee.sow_start_date|date:"d M Y"|default:"-" }}</div>
+        <div class="info-item"><span>SOW End Date:</span> {{ employee.sow_end_date|date:"d M Y"|default:"-" }}</div>
+        <div class="info-item"><span>Status:</span> {{ employee.is_active|yesno:"Active,Inactive" }}</div>
+
+        <div class="info-item"><span>Country</span>: {{ employee.location|default:"-" }}</div>
+
+
+
+    </div>
+
+    <!-- ========================
+         LEAVE & SHIFT SETTINGS
+         ======================== -->
+    <div class="section-title">Leave & Work Settings</div>
+
+    <div class="info-grid">
+
+        <div class="info-item">
+            <span>Annual Leave Entitlement:</span>
+            {{ employee.yearly_annual_leave_entitlement }}
+        </div>
+
+        <div class="info-item">
+            <span>Sick Leave Entitlement:</span>
+            {{ employee.yearly_sick_leave_entitlement }}
+        </div>
+
+        <div class="info-item">
+            <span>Shift Hours / Day:</span>
+            {{ employee.shift_hours_day }}
+        </div>
+
+        <div class="info-item">
+            <span>Shift Days / Week:</span>
+            {{ employee.shift_days_week }}
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends "employees/base.html" %}
+
+{% block title %}Leave Details{% endblock %}
+
+{% block content %}
+
+<style>
+/* ================= STATUS CHIP TOOLTIP ================= */
+.status-chip {
+    position: relative;
+    cursor: default;
+}
+
+.status-tooltip {
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 10;
+}
+.apply-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #cc1939, #f36c7a);
+    color: #fff;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(204, 25, 57, 0.25);
+    transition: all 0.25s ease;
+}
+
+.apply-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(204, 25, 57, 0.35);
+    opacity: 0.95;
+}
+
+.apply-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.status-chip:hover .status-tooltip {
+    opacity: 1;
+}
+</style>
+
+<div class="page-wrapper">
+
+    <!-- ================= ACTION BAR ================= -->
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:6px;
+    ">
+        <a href="{% url 'employee_home' %}" class="back-link">
+            ← Back to Home
+        </a>
+
+        {% if not request.user.is_staff %}
+           <a href="{% url 'apply_leave' %}" class="apply-btn">
+    <span class="apply-icon">＋</span>
+    <span>Apply Leave</span>
+</a>
+        {% endif %}
+    </div>
+
+    <!-- ================= STATUS STRIP (PENDING ONLY) ================= -->
+    {% if recent_leaves %}
+    <div style="
+        display:flex;
+        gap:8px;
+        flex-wrap:wrap;
+        margin-bottom:16px;
+    ">
+        {% for leave in recent_leaves %}
+            {% if leave.status == "PENDING" %}
+            <div class="status-chip" style="
+                background:#fff7ed;
+                border:1px solid #fde68a;
+                padding:6px 12px;
+                border-radius:999px;
+                font-size:12px;
+                display:flex;
+                align-items:center;
+                gap:6px;
+                white-space:nowrap;
+            ">
+                <span style="
+                    width:6px;
+                    height:6px;
+                    background:#facc15;
+                    border-radius:50%;
+                    display:inline-block;
+                "></span>
+
+                <strong>{{ leave.leave_type.name }}</strong>
+
+                <span style="color:#6b7280;">
+                    {{ leave.start_date|date:"d M" }} – {{ leave.end_date|date:"d M" }}
+                </span>
+
+                <!-- TOOLTIP -->
+                <span class="status-tooltip">
+                    {{ leave.status|title }}
+                </span>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ================= CORE LEAVE CONTENT ================= -->
+    {% include "employees/_leave_details_core.html" %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "employees/dashboard.html" %}
+{% block dashboard_content %}
+
+<div class="page-wrapper">
+
+<h2 class="page-title">Employee Assets</h2>
+
+<div class="action-bar">
+    <a href="{% url 'admin_assets' %}" class="action-link active">Employee Assets</a>
+    <a href="{% url 'admin_inventory' %}" class="action-link">Manage Inventory</a>
+</div>
+
+<div class="table-card">
+<table>
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Asset</th>
+            <th>Serial</th>
+            <th>Received</th>
+            <th>Returned</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for asset in assets %}
+        <tr>
+            <td>{{ asset.employee.full_name }}</td>
+            <td>{{ asset.inventory.asset_type }}</td>
+            <td>{{ asset.inventory.serial_number }}</td>
+            <td>{{ asset.received_on }}</td>
+            <td>{{ asset.returned_on|default:"-" }}</td>
+            <td>
+                {% if asset.is_with_employee %}
+                    <span class="status-pill status-active">With Employee</span>
+                {% else %}
+                    <span class="status-pill status-inactive">Returned</span>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+
+</div>
+{% endblock %}

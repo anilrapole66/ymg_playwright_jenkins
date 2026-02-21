@@ -1,0 +1,241 @@
+{% extends 'employees/dashboard.html' %}
+    {% block title %}Claims{% endblock %}
+
+{% block dashboard_content %}
+
+<style>
+     .container {
+        max-width: 1200px;
+        margin: 0 auto ;
+        margin-bottom: 20px;
+    }
+    /* Card */
+    .card {
+        background: white;
+        border-radius: 12px;
+    }
+    .title {
+        font-size: 22px;
+        color: #111111;
+        font-weight: 700;
+        text-align: center;
+    }
+    /* Table */
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+
+
+    }
+    .table th {
+       background: #cc1939; color: #fff;
+        padding: 12px;
+        font-weight: 700;
+        text-align: center;
+
+    }
+    .table th:first-child {
+    border-top-left-radius: 14px;
+}
+
+.table th:last-child {
+    border-top-right-radius: 14px;
+}
+    .table td {
+        background: white;
+        padding: 12px;
+        text-align: center;
+        border: 1px solid #eef2f7;
+    }
+    .row-hover:hover td {
+        background: #f8fafc;
+    }
+
+    /* Pills */
+    .pill-sub {
+        background: #2563eb;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    .pill-rej {
+        background: #fecaca;
+        color: #b91c1c;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    /* Buttons & Inputs */
+    .view-btn {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .filter-input {
+        padding: 10px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+    }
+    .filter-btn {
+        padding: 10px 16px;
+        background-color: #cc1939;
+        color: #fff;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+    }
+    .reset-btn {
+        padding: 10px 16px;
+        background: #e2e8f0;
+        border-radius: 8px;
+        color: #cc1939;
+        text-decoration: none;
+        font-weight: 600;
+        border: none;
+    }
+    .dashboard-btn-wrapper {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .dashboard-btn {
+        display: inline-block;
+        background: #2563eb;
+        color: white;
+        padding: 10px 22px;
+        border-radius: 8px;
+        font-size: 15px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background 0.25s ease;
+    }
+    .back-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: #cc1939;
+    text-decoration: none;
+    font-weight: 500;
+}
+.back-link:hover {
+    text-decoration: underline;
+}
+    .dashboard-btn:hover {
+        background: #1e4fcc;
+    }
+    .header-style-btn {
+        background: #cc1939;
+        color: white;
+        box-shadow: 0 4px 10px rgba(30, 64, 175, 0.25);
+    }
+
+    .header-style-btn:hover {
+        background: linear-gradient(135deg, #cc1939, #f36c7a);
+        box-shadow: 0 6px 14px rgba(30, 58, 138, 0.32);
+    }
+
+</style>
+<div class="container">
+    <div class="card">
+
+
+{% if employee_param %}
+
+    <div class="title">Claims of {{ employee_param_name }}</div>
+
+         <a href="/employee/{{ employee_param }}/" class="back-link">← Back to Employee Profile</a>
+{% else %}
+
+
+    <div class="title">All Employee Claims</div>
+{% endif %}
+
+
+        <!-- FILTER BAR -->
+        <form method="get" style="margin-bottom: 20px;">
+            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
+
+                <!-- Name Search -->
+                <input type="text" name="name" class="filter-input"
+                       placeholder="Search employee..."
+                       value="{{ name_query|default:'' }}"
+                       style="width: 260px;">
+
+                <!-- Month Filter -->
+                <input type="month" name="month" class="filter-input"
+                       placeholder="Month Filter e.g., 2025-11"
+                       value="{{ month|default:'' }}">
+
+                <!-- Submit -->
+                <button type="submit" class="filter-btn">Filter</button>
+
+                <!-- Reset -->
+                <a href="{% url 'admin_claims' %}" class="reset-btn">Reset</a>
+            </div>
+        </form>
+
+   {% if employee_param %}
+    <div style="margin-bottom: 20px; text-align: right;">
+        <a href="{% url 'admin_claims' %}" class="dashboard-btn header-style-btn">
+            Show All Claims
+        </a>
+        <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+            Viewing claims of Individual Employee <strong>{{ employee_param_name }}</strong>
+        </div>
+    </div>
+{% endif %}
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Period</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Submitted On</th>
+                <th>View</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for claim in claims %}
+            <tr class="row-hover">
+                <td>{{ claim.employee.full_name }}</td>
+                <td>{{ claim.start_date }} → {{ claim.end_date }}</td>
+                <td>${{ claim.amount }}</td>
+
+                <td>
+                    {% if claim.status == "SUBMITTED" %}
+                    <span class="pill-sub">Submitted</span>
+                    {% else %}
+                    <span class="pill-rej">Rejected</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ claim.submitted_at|date:"d M Y" }}</td>
+
+                <td>
+                    <a href="{% url 'admin_claim_detail' claim.id %}?employee={{ request.GET.employee }}">
+    View
+</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align:center; padding:25px; color:#6b7280;">
+                    No claims found.
+                </td>
+            </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

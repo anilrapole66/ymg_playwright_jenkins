@@ -1,0 +1,698 @@
+{% extends parent_template %}
+    {% block title %}Timesheets{% endblock %}
+
+{% block dashboard_content %}
+
+<style>
+ body {
+        zoom: 0.90;  /* 90% = zoom out 10% */
+    }
+ .table td, .table th {
+        font-size: 13px;   /* default was 15px approx */
+        padding: 8px;
+    }
+
+ /* ----- ACTION DROPDOWN (FINAL FIXED VERSION) ----- */
+
+.action-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.action-dropbtn {
+    background: #cc1939;
+    color: white;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.action-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: -10px;
+    background: white;
+    border-radius: 10px;
+    min-width: 180px;
+    padding: 8px;
+    z-index: 99999;
+    border: 1px solid #e5e7eb;
+
+}
+
+/* When dropdown should open upward */
+.action-dropdown.drop-up .action-dropdown-content {
+    top: auto;
+    bottom: 100%;
+}
+
+/* Show only on hover */
+.action-dropdown:hover .action-dropdown-content {
+    display: block;
+}
+
+/* Dropdown button styling */
+.action-btn-item {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    color: #fff;
+    cursor: pointer;
+    border: none;
+    text-align: left;
+}
+
+/* Colors */
+.action-view    { background: #f59e0b; }  /* yellow */
+.action-export  { background: #7c3aed; }  /* purple */
+.action-approve { background: #16a34a; }  /* green */
+.action-reject  { background: #dc2626; }  /* red */
+
+.action-btn-item:hover {
+    opacity: 0.85;
+}
+
+/* Fix inside form button */
+.action-dropdown-content form {
+    margin: 0;
+}
+
+
+ .container { max-width:1200px; margin:0 auto; padding:14px; margin-bottom:20px; }
+.filter-bar select,
+.filter-bar input,
+.filter-btn,
+.reset-btn {
+    height: 42px;
+    display: flex;
+    align-items: center;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin-bottom: 18px;
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+}
+.filter-bar select, .filter-bar input {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+}
+.filter-bar button {
+    background: #2563eb; color: #fff; border: none; padding: 8px 12px; border-radius: 8px;
+}
+.table-container {
+   overflow: visible !important;
+}
+ .table { width: 100%; border-collapse: collapse; min-width: 820px;}
+.table th { background:#cc1939; color:white; padding:10px; text-align:center; font-weight:700; }
+.table td { background:#fff; padding:10px; text-align:center; border-bottom:1px solid #eef2f7; }
+.row-hover:hover td { background:#f8fafc; }
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 35px;
+    margin: 5px;
+    border-radius: 10px;
+    font-weight: 600;
+    color: white;
+    text-decoration: none;
+    gap: 6px;
+    cursor: pointer;
+}
+.filter-btn, .reset-btn {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.filter-btn { background: #e5e7eb; color: white; }
+.reset-btn { background: #e5e7eb; color: #ef4444; }
+
+.view-btn { background: #f97316; }
+.export-btn { background: #2563eb; }
+
+.pill-sub { color:#2563eb; font-weight:600; }
+.pill-rej { color:#b91c1c; font-weight:600; background:#fee2e2; padding:6px 10px; border-radius:16px; }
+
+.controls-row { display:flex; gap:12px; align-items:center; margin-top:8px; flex-wrap:wrap; }
+.search-input {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 15px;
+    border-radius: 8px;
+    background: white;
+    border: 1px solid #d1d5db;
+}
+.small-btn { padding:8px 12px; border-radius:8px; border:none; cursor:pointer; }
+
+.empty-note { text-align:center; color:#6b7280; padding:24px; }
+
+.pagination-controls {
+    margin-top: 14px;
+    text-align: center;
+}
+.pagination-controls button {
+    background: #cc1939;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    color: white;
+    margin: 0 5px;
+}
+.pagination-controls button:hover { opacity:0.85; background: linear-gradient(135deg, #cc1939, #f36c7a); }
+.pagination-controls button:disabled { opacity:0.5; cursor:not-allowed; }
+
+
+
+/***********************
+ FULLSCREEN LOADER
+************************/
+#loader-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(255,255,255,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+}
+
+.loader-box { text-align: center; }
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid #d1d5db;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 12px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#loader-text {
+    font-size: 18px;
+    color: #1e3a8a;
+    font-weight: 600;
+}
+
+
+/***********************
+ SUCCESS TICK
+************************/
+#success-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 6000;
+    background: rgba(255,255,255,0.6);
+}
+
+.success-box {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: #16a34a;
+    color: white;
+    font-size: 60px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 4px 16px rgba(0,0,0,0.2);
+    animation: pop 0.3s ease-out;
+}
+
+
+/* Status Pills */
+.pill-approved {
+    background: #dcfce7;      /* light green */
+    color: #16a34a;           /* green text */
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 16px;
+}
+
+.pill-submitted {
+    background: #fef3c7;      /* light orange */
+    color: #f97316;           /* orange text */
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 16px;
+}
+.leave-link {
+    color: #cc1939;
+    font-weight: 500;
+    text-decoration: none;
+}
+.leave-link:hover {
+    color: #1d4ed8;
+}
+.pill-rejected {
+    background: #fee2e2;      /* light red */
+    color: #dc2626;           /* red text */
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 16px;
+}
+
+
+@keyframes pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+</style>
+
+
+<!-- =======================
+     FULLSCREEN LOADER UI
+======================= -->
+<div id="loader-overlay">
+    <div class="loader-box">
+        <div class="spinner"></div>
+        <p id="loader-text">Processing…</p>
+    </div>
+</div>
+
+<!-- =======================
+     SUCCESS TICK UI
+======================= -->
+<div id="success-overlay">
+    <div class="success-box">✓</div>
+</div>
+
+
+
+<div class="container">
+<h2 style="color:#111111; margin-bottom:12px;">🧾 Timesheets Overview</h2>
+
+
+<!-- =======================
+     FILTER BAR
+======================= -->
+<form method="get" class="filter-bar" id="filter-form">
+    <select name="main_client">
+        <option value="">Client</option>
+        {% for mc in main_clients %}
+            <option value="{{ mc.id }}" {% if filters.main_client == mc.id|stringformat:'s' %}selected{% endif %}>{{ mc.name }}</option>
+        {% endfor %}
+    </select>
+
+
+    <input type="text" name="employee_name" class="search-input" placeholder="Employee name"
+           value="{{ filters.employee_name|default:'' }}">
+
+    <select name="year">
+        <option value="">Year</option>
+        {% for y in years %}
+            <option value="{{ y }}" {% if filters.year == y %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="month">
+        <option value="">Month</option>
+        {% for code, name in months %}
+            <option value="{{ code }}" {% if filters.month == code %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" class="filter-btn"> 🔍 </button>
+    <a href="{% url 'admin_timesheets' %}" class="reset-btn"> ↺ </a>
+</form>
+
+
+
+{% if submissions %}
+<!-- =======================
+     EXPORT FORM
+======================= -->
+<form method="post" action="{% url 'export_multiple_timesheets' %}" id="export-form">
+    {% csrf_token %}
+
+<div class="controls-row" style="justify-content:space-between; margin-top:10px;">
+
+    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+
+        {% if not is_manager %}
+            <!-- EMAIL FIELD + EMAIL EXPORT BUTTONS (ADMIN ONLY) -->
+            <input type="email" name="send_to_email" id="send-to-email"
+                   placeholder="Enter email to send export (optional)"
+                   style="padding:8px 10px; border-radius:8px; border:1px solid #d1d5db; width:260px;" />
+
+            <button type="submit" name="email_export" value="1"
+                    class="small-btn" style="background:#16a34a; color:white;">
+                📧 Email (Excel)
+            </button>
+
+            <button type="submit" name="email_pdf_export" value="1"
+                    class="small-btn" style="background:#FF6C4F; color:white;">
+                📧 Email (PDF)
+            </button>
+        {% endif %}
+
+        <!-- DOWNLOAD EXPORT BUTTONS (ADMIN + MANAGER) -->
+        <button type="submit"
+                class="small-btn" style="background:#2563eb; color:white;">
+           ⬇️ Export (Excel)
+        </button>
+
+        <button type="submit" name="pdf_export" value="1"
+                class="small-btn" style="background:#FF6C4F; color:white;">
+            📄 Export (PDF)
+        </button>
+
+        <button type="submit" name="mc_export" value="1"
+                class="small-btn" style="background:#9333ea; color:white;">
+            📁 Download MC
+        </button>
+
+    </div>
+</div>
+
+
+
+<!-- =======================
+     PAGINATION (centered)
+======================= -->
+<div class="pagination-controls" style="margin-top: 14px; text-align: center;">
+    <button type="button" id="prev-btn">Previous</button>
+    <span id="page-number">Page 1</span>
+    <button type="button" id="next-btn">Next</button>
+</div>
+  <div>
+            <label class="select-all-label">
+                <input type="checkbox" id="select-all" style="margin-right:8px;"> Select All
+            </label>
+        </div>
+    <!-- =======================
+         TABLE
+    ======================= -->
+    <div class="table-container" style="margin-top:14px; border-radius: 14px;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width:75px;">Select</th>
+                    <th>Employee</th>
+                    <th>Client</th>
+                    <th>Month</th>
+                    <th>Status</th>
+                    <th>Submitted On</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for sub in submissions %}
+                    {% with y=sub.period.start_date|date:"Y" mon=sub.period.start_date|date:"m" %}
+                    <tr class="row-hover data-row">
+                        <td>
+                            <input type="checkbox" name="selected_timesheets" class="select-box"
+                                   value="{{ sub.employee.id }}|{{ mon }}|{{ y }}">
+                        </td>
+                        <td>
+    <a href="{% url 'employee_detail' sub.employee.id %}"
+       class="leave-link">
+        {{ sub.employee.full_name }}
+    </a>
+</td>
+                        <td>{{ sub.employee.main_account.name|default:"-" }}</td>
+                        <td>{{ sub.period.start_date|date:"F Y" }}</td>
+                        <td>
+                            {% if sub.status == "APPROVED" %}
+    <span class="pill-approved">Approved</span>
+
+{% elif sub.status == "SUBMITTED" %}
+    <span class="pill-submitted">Submitted</span>
+
+{% elif sub.status == "REJECTED" %}
+    <span class="pill-rejected">Rejected</span>
+
+{% else %}
+    <span>{{ sub.status }}</span>
+{% endif %}
+
+                        </td>
+                        <td>{{ sub.submitted_at|date:"d M Y, h:i A" }}</td>
+                        <td>
+<div class="action-dropdown">
+    <button type="button" class="action-dropbtn">Action ▾</button>
+
+    <div class="action-dropdown-content">
+
+        <a class="action-btn-item action-view"
+           href="{% url 'submit_timesheet' %}?year={{ y }}&month={{ mon }}&view=1&employee_id={{ sub.employee.id }}">
+            👁️ View
+        </a>
+
+        <a class="action-btn-item action-export"
+           href="{% url 'export_timesheet' sub.employee.id mon y %}">
+            📤 Export
+        </a>
+
+       <button type="button"
+        class="action-btn-item action-approve"
+        onclick="approveTimesheet('{{ sub.id }}')">
+    ✅ Approve
+</button>
+
+
+        <button type="button"
+                onclick="stopParentForm(event); openRejectModal('{{ sub.id }}')"
+                class="action-btn-item action-reject">
+            ❌ Reject
+        </button>
+
+    </div>
+</div>
+
+
+                        </td>
+
+                    </tr>
+                    {% endwith %}
+                {% empty %}
+                    <tr><td colspan="8" class="empty-note">No submitted or approved timesheets found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</form>
+
+<div id="reject-modal"
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+
+    <form method="post" id="reject-form"
+          style="background:white; padding:20px; border-radius:10px; width:350px;">
+        {% csrf_token %}
+        <h3>Reject Timesheet</h3>
+        <textarea name="reason" required placeholder="Enter rejection reason"
+                  style="width:100%; height:100px; margin-top:10px;"></textarea>
+
+        <div style="margin-top:15px; text-align:right;">
+            <button type="button" onclick="closeRejectModal()"
+                    style="background:#ccc; padding:6px 12px; border-radius:6px; margin-right:8px;">
+                Cancel
+            </button>
+
+            <button type="submit"
+                    style="background:#dc2626; color:white; padding:6px 12px; border-radius:6px;">
+                Reject
+            </button>
+        </div>
+    </form>
+</div>
+
+
+<script>
+
+
+// Mark approve buttons so export validation is skipped
+/***********************
+ SELECT ALL CHECKBOX
+************************/
+function openRejectModal(submissionId) {
+    document.getElementById("reject-form").action =
+        "/timesheet/" + submissionId + "/reject/";
+    document.getElementById("reject-modal").style.display = "flex";
+}
+
+function closeRejectModal() {
+    document.getElementById("reject-modal").style.display = "none";
+}
+
+document.getElementById('select-all').addEventListener('change', function() {
+    const checked = this.checked;
+    document.querySelectorAll('.select-box').forEach(c => c.checked = checked);
+});
+
+
+/***********************
+ FORM VALIDATION + LOADER
+************************/
+document.getElementById('export-form').addEventListener('submit', function(e) {
+
+    // Skip validation when APPROVE was clicked
+
+    const selected = Array.from(document.querySelectorAll('.select-box')).filter(c => c.checked);
+    if (selected.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one timesheet.');
+        return false;
+    }
+
+});  // <-- THIS closes the event listener properly
+
+
+
+/***********************
+ SUCCESS TICK LOGIC
+************************/
+document.addEventListener("DOMContentLoaded", function () {
+    {% if messages %}
+        {% for m in messages %}
+            {% if m.tags == "success" %}
+                const successOverlay = document.getElementById("success-overlay");
+                successOverlay.style.display = "flex";
+                setTimeout(() => {
+                    successOverlay.style.display = "none";
+                }, 1500);
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+});
+
+
+/***********************
+ PAGINATION
+************************/
+document.addEventListener("DOMContentLoaded", function () {
+
+    const rows = Array.from(document.querySelectorAll(".data-row"));
+    const rowsPerPage = 20;
+    let currentPage = 1;
+
+    function renderPage() {
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        rows.forEach((row, index) => {
+            row.style.display = (index >= start && index < end) ? "" : "none";
+        });
+
+        document.getElementById("page-number").innerText = `Page ${currentPage}`;
+        document.getElementById("prev-btn").disabled = (currentPage === 1);
+        document.getElementById("next-btn").disabled = (end >= rows.length);
+    }
+
+    document.getElementById("prev-btn").onclick = () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderPage();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    };
+
+    document.getElementById("next-btn").onclick = () => {
+        if ((currentPage * rowsPerPage) < rows.length) {
+            currentPage++;
+            renderPage();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    };
+
+    renderPage();
+});
+
+
+document.querySelectorAll(".action-dropdown").forEach(dd => {
+    dd.addEventListener("mouseenter", function () {
+        const rect = dd.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+
+        // if dropdown would go outside screen, open upwards
+        if (spaceBelow < 200) {
+            dd.classList.add("drop-up");
+        } else {
+            dd.classList.remove("drop-up");
+        }
+    });
+});
+
+function stopParentForm(event) {
+    event.stopPropagation();
+    event.preventDefault();
+}
+document.querySelectorAll(".action-dropdown").forEach(dd => {
+    dd.addEventListener("mouseenter", function () {
+
+        const rect = dd.getBoundingClientRect();
+        const dropdownHeight = 260; // menu height approx
+        const spaceBelow = window.innerHeight - rect.bottom;
+
+        if (spaceBelow < dropdownHeight) {
+            dd.classList.add("drop-up");
+        } else {
+            dd.classList.remove("drop-up");
+        }
+    });
+});
+
+function approveTimesheet(id) {
+    const url = `/timesheet/${id}/approve/`;  // your approve URL
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = url;
+
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfField = document.createElement("input");
+    csrfField.type = "hidden";
+    csrfField.name = "csrfmiddlewaretoken";
+    csrfField.value = csrfToken;
+
+    form.appendChild(csrfField);
+    document.body.appendChild(form);
+
+    form.submit();
+}
+
+
+</script>
+
+{% else %}
+<p style="text-align:center; color:#6b7280; margin-top:20px;">No submitted or approved timesheets found.</p>
+{% endif %}
+
+</div>
+{% endblock %}

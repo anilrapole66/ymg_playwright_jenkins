@@ -1,0 +1,81 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Manager Dashboard{% endblock %}
+
+{% block content %}
+<style>
+/* SAME styles as your admin dashboard */
+body { font-size: 14px !important; }
+.dashboard-layout, .main-sidebar, .dashboard-content {
+    font-family: 'Poppins', sans-serif;
+    color: #111111;
+}
+.dashboard-layout {
+    position: fixed;
+    top: 60px;
+    left: 230px;
+    right: 0;
+    bottom: 0;
+    background:#fff;
+    border-radius: 18px 0 0 18px;
+    padding: 20px;
+    overflow-y: auto;
+}
+.main-sidebar {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 230px;
+    height: calc(100vh - 90px);
+    background: #fff;
+    padding: 25px 0;
+    border-radius: 0 14px 14px 0;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.15);
+}
+.nav-item {
+    padding: 12px 20px;
+    border-left: 4px solid transparent;
+    color: #111;
+    font-weight: 500;
+    display: block;
+    text-decoration: none;
+}
+.nav-item:hover { background:#cc1939; color:white; }
+.nav-item.active { background:#cc1939; border-left:4px solid #111; color:white; }
+
+.dashboard-content {
+    padding: 30px;
+    background:#fff;
+    min-height: calc(100vh - 160px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    border-radius: 18px;
+}
+</style>
+
+<div class="dashboard-layout">
+
+    <!-- Manager Sidebar -->
+    <div class="main-sidebar">
+        <a href="{% url 'manager_employee_list' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'manager_employee_list' %}active{% endif %}">
+            My Employees
+        </a>
+
+        <a href="{% url 'manager_timesheets' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'manager_timesheets' %}active{% endif %}">
+            Timesheets
+        </a>
+
+       <a href="{% url 'leave_history' %}"
+   class="nav-item {% if request.resolver_match.url_name == 'manager_leave_history' %}active{% endif %}">
+    Leave History
+</a>
+
+    </div>
+
+    <div class="dashboard-content">
+        {% block dashboard_content %}{% endblock %}
+    </div>
+
+</div>
+{% endblock %}

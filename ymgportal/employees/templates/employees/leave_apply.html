@@ -1,0 +1,252 @@
+{% extends "employees/base.html" %}
+{% block title %}Apply Leave{% endblock %}
+{% block content %}
+
+<style>
+.page-wrapper {
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 0 16px;
+}
+
+/* ---------- FORM CARD ---------- */
+.form-card {
+    background: #fff;
+    padding: 22px 24px;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+/* ---------- LAYOUT ---------- */
+.leave-layout {
+    display: grid;
+    grid-template-columns: minmax(520px, 1.5fr) minmax(360px, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+.leave-layout .form-card {
+    height: fit-content;
+}
+@media (max-width: 980px) {
+    .leave-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+/* ---------- FORM FIELDS ---------- */
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+}
+
+/* Fix date picker jumping on zoom */
+input[type="date"] {
+    position: relative;
+    z-index: 1;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+/* ---------- ACTIONS ---------- */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn-primary {
+    background: #cc1939;
+    color: #fff;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+.readonly {
+    background: #f3f4f6;
+    cursor: not-allowed;
+}
+.btn-secondary {
+    background: #f3f4f6;
+    color: #111;
+    padding: 9px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.btn-primary:hover { opacity: 0.9; }
+</style>
+
+<div class="page-wrapper">
+
+<a href="{% url 'employee_leave_details' request.user.employee_profile.id %}"
+   class="back-link">← Back to Leave Details</a>
+
+<div class="leave-layout">
+    <div class="form-card">
+        <div class="form-title">Apply Leave</div>
+
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="form-group" style="color:#b91c1c;font-weight:600;">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label>Leave Type</label>
+                {{ form.leave_type }}
+                {% if form.leave_type.errors %}{{ form.leave_type.errors }}{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>Start Date</label>
+                {{ form.start_date }}
+                {% if form.start_date.errors %}{{ form.start_date.errors }}{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>End Date</label>
+                {{ form.end_date }}
+                {% if form.end_date.errors %}{{ form.end_date.errors }}{% endif %}
+            </div>
+
+            <div class="form-group" id="working-days-msg"
+                 style="margin-top:-6px; color:#374151; font-size:13px; font-weight:600;">
+            </div>
+
+            <div class="form-group">
+                <label>Reason (optional)</label>
+                {{ form.reason }}
+                {% if form.reason.errors %}{{ form.reason.errors }}{% endif %}
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'employee_leave_details' request.user.employee_profile.id %}"
+                   class="btn-secondary">Cancel</a>
+
+                <button type="submit" class="btn-primary">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if existing_leaves %}
+    <div class="form-card side-card">
+        <div class="form-title" style="font-size:16px;">Your Applied Leaves</div>
+        <div style="font-size:13px;color:#6b7280;margin-bottom:8px;">
+            Showing your latest approved/pending leave applications.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:14px;">
+            {% for leave in existing_leaves %}
+                <div style="padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;">
+                    <strong>{{ leave.leave_type.name }}</strong>
+                    — {{ leave.start_date }} to {{ leave.end_date }}
+                    <span style="color:#6b7280;">(Status: {{ leave.status }})</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const leaveType = document.getElementById("id_leave_type");
+    const startDate = document.getElementById("id_start_date");
+    const endDate = document.getElementById("id_end_date");
+    const workingDaysMsg = document.getElementById("working-days-msg");
+
+    function handleHalfDay() {
+        const selectedText =
+            leaveType.options[leaveType.selectedIndex].text.toLowerCase();
+
+        if (selectedText.includes("half")) {
+            endDate.value = startDate.value;
+            endDate.readOnly = true;
+            endDate.classList.add("readonly");
+        } else {
+            endDate.readOnly = false;
+            endDate.classList.remove("readonly");
+        }
+        updateWorkingDaysMessage();
+    }
+
+    function parseDate(val) {
+        if (!val) return null;
+        const parts = val.split("-");
+        if (parts.length !== 3) return null;
+        return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    }
+
+    function countWorkingDays(start, end) {
+        let count = 0;
+        const current = new Date(start);
+        while (current <= end) {
+            const day = current.getDay(); // 0=Sun, 6=Sat
+            if (day !== 0 && day !== 6) count += 1;
+            current.setDate(current.getDate() + 1);
+        }
+        return count;
+    }
+
+    function updateWorkingDaysMessage() {
+        const start = parseDate(startDate.value);
+        const end = parseDate(endDate.value);
+        if (!start || !end || end < start) {
+            workingDaysMsg.textContent = "";
+            return;
+        }
+
+        const isHalfDay =
+            leaveType.options[leaveType.selectedIndex].text.toLowerCase().includes("half");
+        const workingDays = countWorkingDays(start, end);
+        const effectiveDays = isHalfDay ? (workingDays > 0 ? 0.5 : 0) : workingDays;
+
+        if (effectiveDays > 0) {
+            const dayLabel = effectiveDays === 1 ? "day" : "days";
+            workingDaysMsg.textContent = `Applying for ${effectiveDays} working ${dayLabel}.`;
+        } else {
+            workingDaysMsg.textContent = "Selected range has no working days.";
+        }
+    }
+
+    leaveType.addEventListener("change", handleHalfDay);
+    startDate.addEventListener("change", handleHalfDay);
+    endDate.addEventListener("change", updateWorkingDaysMessage);
+
+    handleHalfDay();
+});
+</script>
+
+{% endblock %}

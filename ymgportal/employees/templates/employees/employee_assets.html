@@ -1,0 +1,81 @@
+{% extends "employees/base.html" %}
+{% block title %}My Assets{% endblock %}
+{% block content %}
+
+<style>
+.assets-wrap {
+    max-width: 1050px;
+    margin: 24px auto;
+    padding: 0 12px;
+}
+.assets-title {
+    text-align: center;
+    color: #111;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+th, td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+    font-size: 13px;
+}
+th {
+    background: #cc1939;
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+tr:nth-child(odd) { background: #f8fcff; }
+tr:hover td { background: #eef5ff; }
+</style>
+
+<div class="assets-wrap">
+
+<h2 class="assets-title">My Assets</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Asset</th>
+            <th>Serial</th>
+            <th>Received On</th>
+            <th>Returned On</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for asset in assets %}
+        <tr>
+            <td>{{ asset.inventory.asset_type }}</td>
+            <td>{{ asset.inventory.serial_number }}</td>
+            <td>{{ asset.received_on }}</td>
+            <td>{{ asset.returned_on|default:"-" }}</td>
+            <td>
+                {% if asset.is_with_employee %}
+                    <span style="color:green;">With Me</span>
+                {% else %}
+                    <span style="color:red;">Returned</span>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="5">No assets assigned.</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% endblock %}

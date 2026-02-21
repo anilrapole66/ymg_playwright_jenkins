@@ -1,0 +1,204 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block content %}
+    <style>
+     .login-wrapper {
+    min-height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+
+    /* Move login box UP */
+    margin-top: -40px;
+
+    width: 100%;
+}
+
+
+        /* ==== Login Container ==== */
+       .login-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 32px 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+        .login-container:hover {
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+        }
+
+        /* ==== Title ==== */
+        .login-container h2 {
+            text-align: center;
+            color: #111111;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.08);
+        }
+
+        /* ==== Labels ==== */
+        .login-container label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        /* ==== Inputs ==== */
+        .login-container input[type="text"],
+        .login-container input[type="password"] {
+            width: 100%;
+            box-sizing: border-box; /* ✅ prevents overflow */
+            padding: 11px 14px;
+            margin-bottom: 18px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background-color: #f9fafb;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            color: #1e293b;
+            outline: none;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s ease;
+            height: 44px;
+            display: block;
+        }
+
+        .login-container input:focus {
+            border-color: #2563eb;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* ==== Login Button ==== */
+        .login-container button {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #cc1939;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+            margin-top: 8px;
+            height: 46px;
+        }
+
+        .login-container button:hover {
+            background: linear-gradient(135deg, #cc1939, #f36c7a);
+            transform: translateY(-2px);
+
+        }
+
+        /* ==== Error Message ==== */
+        .error-message {
+            color: #dc2626;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            font-weight: 500;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* ==== Extra Links ==== */
+        .login-container .extra-links {
+            text-align: center;
+            margin-top: 18px;
+        }
+
+        .login-container .extra-links a {
+            text-decoration: none;
+            color: #eb3925;
+            font-weight: 500;
+            transition: all 0.25s ease;
+        }
+
+        .login-container .extra-links a:hover {
+            color: #eb3925;
+            text-decoration: underline;
+            transform: translateY(-1px);
+        }
+
+        /* ==== Responsive ==== */
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 24px 20px;
+                margin: 50px 20px;
+            }
+
+            .login-container h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+
+
+<div class="login-wrapper">
+    <div class="login-container">
+        <h2>Login</h2>
+        {% if messages %}
+    {% for message in messages %}
+        {% if message.tags == "success" %}
+            <div style="
+                background:#dcfce7;
+                color:#166534;
+                padding:12px;
+                border-radius:10px;
+                margin-bottom:16px;
+                text-align:center;
+                font-weight:600;
+            ">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+        <!-- Error Message Display -->
+        {% if form.errors %}
+            <div class="error-message">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        {{ error }}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username" required>
+
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+        <div class="extra-links">
+    <a href="{% url 'forgot_password' %}">Forgot password?</a>
+</div>
+    </div>
+</div>
+{% endblock %}

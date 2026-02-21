@@ -1,0 +1,142 @@
+{% extends "employees/dashboard.html" %}
+{% block dashboard_content %}
+
+<style>
+    /* ---------- ASSET TABS ---------- */
+.asset-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.asset-tab {
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    background: #f3f4f6;
+    color: #111;
+    transition: all 0.2s ease;
+}
+
+.asset-tab:hover {
+    background: #e5e7eb;
+}
+
+.asset-tab.active {
+    background: #cc1939;
+    color: #fff;
+}
+
+.asset-tab.primary {
+    background: linear-gradient(135deg, #cc1939, #f36c7a);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(204,25,57,0.25);
+}
+
+.asset-tab.primary:hover {
+    opacity: 0.95;
+}
+</style>
+<h2>Assets</h2>
+<div class="asset-tabs">
+    <a href="{% url 'admin_assets' %}"
+       class="asset-tab">
+        Employee Assets
+    </a>
+
+    <a href="{% url 'admin_inventory' %}"
+       class="asset-tab active">
+        Manage Inventory
+    </a>
+
+    <a href="{% url 'add_inventory' %}"
+       class="asset-tab ">
+        + Add Inventory
+    </a>
+</div>
+
+
+<table>
+    <thead>
+<tr>
+    <th>Asset</th>
+    <th>Serial</th>
+    <th>Purchased</th>
+    <th>With Employee</th>
+    <th>Employee</th>
+    <th>Status</th>
+    <th style="width:140px;">Actions</th>
+</tr>
+</thead>
+    <tbody>
+    {% for item in inventory %}
+<tr>
+    <td>{{ item.asset_type }}</td>
+    <td>{{ item.serial_number }}</td>
+    <td>{{ item.purchased_date|default:"-" }}</td>
+
+    <!-- Is With Employee -->
+    <td>
+        {% if item.active_assignments %}
+            <span class="status-active">Yes</span>
+        {% else %}
+            <span class="status-inactive">No</span>
+        {% endif %}
+    </td>
+
+    <!-- Employee Name -->
+    <td>
+        {% if item.active_assignments %}
+            {{ item.active_assignments.0.employee.full_name }}
+        {% else %}
+            -
+        {% endif %}
+    </td>
+
+    <!-- Inventory Status -->
+    <td>
+        {% if item.is_active %}
+            <span class="status-active">Active</span>
+        {% else %}
+            <span class="status-inactive">Inactive</span>
+        {% endif %}
+    </td>
+
+    <!-- Actions -->
+    <td>
+        {% if item.active_assignments %}
+    <a href="{% url 'edit_assignment' item.active_assignments.0.id %}"
+       class="table-link">
+        Edit Assignment
+    </a>
+        {% endif %}
+
+    <a href="{% url 'edit_inventory' item.id %}"
+       class="table-link">
+        Edit Inventory
+    </a>
+
+        |
+        {% if not item.active_assignments %}
+            <a href="{% url 'assign_asset' %}?inventory={{ item.id }}"
+               class="table-link">
+                Assign
+            </a>
+        {% else %}
+            <span style="color:#999;">Assigned</span>
+        {% endif %}
+    </td>
+</tr>
+
+    {% empty %}
+        <tr>
+            <td colspan="5">No inventory items.</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

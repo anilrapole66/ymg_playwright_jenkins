@@ -1,0 +1,167 @@
+{% extends "employees/dashboard.html" %}
+{% block dashboard_content %}
+
+<style>
+/* ---------- PAGE ---------- */
+.page-wrapper {
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 0 12px;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+/* ---------- INFO CARD ---------- */
+.info-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    font-size: 14px;
+}
+
+.info-card strong {
+    color: #111;
+}
+
+/* ---------- FORM ---------- */
+.form-card {
+    background: #fff;
+    padding: 22px;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+}
+
+.form-row {
+    margin-bottom: 14px;
+}
+
+.form-row label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.form-row input,
+.form-row textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+}
+
+.form-row textarea {
+    resize: vertical;
+}
+
+/* ---------- CHECKBOX ---------- */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+.checkbox-inline input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+/* ---------- ACTIONS ---------- */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.primary-btn {
+    background: #cc1939;
+    color: white;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.primary-btn:hover {
+    opacity: 0.9;
+}
+
+.cancel-link {
+    color: #555;
+    font-weight: 600;
+    text-decoration: none;
+}
+</style>
+
+<div class="page-wrapper">
+
+    <h2 class="page-title">Edit Asset Assignment</h2>
+
+    <!-- ASSET INFO -->
+    <div class="info-card">
+        <div>
+            <strong>Asset:</strong>
+            {{ assignment.inventory.asset_type }} –
+            {{ assignment.inventory.serial_number }}
+        </div>
+        <div style="margin-top:4px;">
+            <strong>Employee:</strong>
+            {{ assignment.employee.full_name }}
+        </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="form-card">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <label>Returned On</label>
+                <input type="date"
+                       name="returned_on"
+                       value="{{ assignment.returned_on|date:'Y-m-d' }}">
+            </div>
+
+            <div class="form-row checkbox-container">
+                <label class="checkbox-inline">
+                    <input type="checkbox"
+                           name="is_with_employee"
+                           {% if assignment.is_with_employee %}checked{% endif %}>
+                    <span>Still with employee</span>
+                </label>
+            </div>
+
+            <div class="form-row">
+                <label>Remarks</label>
+                <textarea name="remarks" rows="3">
+{{ assignment.remarks|default:'' }}</textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="primary-btn">
+                    Save Changes
+                </button>
+
+                <a href="{% url 'admin_inventory' %}" class="cancel-link">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

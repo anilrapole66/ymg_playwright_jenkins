@@ -1,0 +1,385 @@
+{% extends 'employees/dashboard.html' %}
+
+{% block title %}
+Configurables Management
+{% endblock %}
+
+{% block dashboard_content %}
+<style>
+    /* ===== Configurables Layout ===== */
+    .config-layout {
+        font-family: 'Poppins', sans-serif;
+        display: flex;
+        gap: 25px;
+        background: transparent;
+        padding: 10px;
+        margin-bottom: 25px;
+        min-height: calc(100vh - 100px);
+    }
+
+    /* ===== Inner Config Sidebar ===== */
+    .config-sidebar {
+        width: 230px;
+        background: white;
+        color: #1e3a8a;
+        display: flex;
+        flex-direction: column;
+        padding: 25px 0;
+        border-radius: 14px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        position: sticky;
+        top: 90px;
+        height: fit-content;
+        flex-shrink: 0;
+    }
+
+    .config-sidebar h2 {
+        text-align: center;
+        font-size: 1.2rem;
+        margin-bottom: 25px;
+        font-weight: 700;
+        color: #111111;
+    }
+
+    .config-item {
+    padding: 12px 20px;
+    border-left: 4px solid transparent;
+    color: #111111;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    display: block;
+    cursor: pointer;
+    }
+
+    .config-item:hover {
+        background: #f30000;
+    color: White;
+    }
+
+    .config-item.active {
+        background: #f30000;
+    border-left: 4px solid #111111;
+    font-weight: 600;
+    color:white;
+    }
+
+    /* ===== Main Config Content ===== */
+    .config-main {
+        flex: 1;
+        background: white;
+        border-radius: 14px;
+        padding: 0px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.4s ease;
+    }
+
+    /* ===== Sections ===== */
+    .config-section {
+        display: none;
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 0px;
+
+    }
+
+    .config-section.active {
+        display: block;
+        animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ===== Headings ===== */
+    h3 {
+        color: #111111;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 6px;
+        font-size: 1.2rem;
+    }
+
+    /* ===== Tables ===== */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e5e7eb;
+        text-align: left;
+        font-size: 0.95rem;
+    }
+
+    th {
+        background: #f30000;
+        color: #fff;
+        font-weight: 600;
+    }
+
+    tr:hover td {
+        background: #f9fbff;
+    }
+
+    /* ===== Buttons ===== */
+    .add-button, .manage-link {
+        display: inline-block;
+        background-color: #cc1939;
+        color: white;
+        text-decoration: none;
+        padding: 8px 14px;
+        border-radius: 8px;
+        margin-top: 15px;
+        transition: background 0.3s, transform 0.2s;
+    }
+
+    .add-button:hover,
+    .manage-link:hover {
+        background: linear-gradient(135deg, #cc1939, #f36c7a);
+        transform: translateY(-1px);
+    }
+
+    /* Make bulk config match table-section design */
+.bulk-config-wrapper {
+    font-size: 0.95rem;
+}
+
+.bulk-config-wrapper h4 {
+    font-size: 1rem;
+    margin: 20px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    color: #111111;
+}
+
+/* Make input/select visually consistent with tables */
+.bulk-config-wrapper select,
+.bulk-config-wrapper input[type="number"] {
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 0.9rem;
+    background: #f8fafc;
+}
+
+.bulk-config-wrapper select:focus,
+.bulk-config-wrapper input[type="number"]:focus {
+    border-color: #f30000;
+    box-shadow: 0 0 0 3px rgba(24,153,215,0.25);
+}
+
+/* Grid alignment similar to table spacing */
+.bulk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+.bulk-grid label {
+    background: #f8fafc;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Match button style */
+.bulk-save-btn {
+    background-color: #cc1939;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    margin-top: 18px;
+    font-size: 0.95rem;
+    border: none;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.bulk-save-btn:hover {
+    background: linear-gradient(135deg, #cc1939, #f36c7a);
+    transform: translateY(-1px);
+}
+
+
+</style>
+
+<div class="config-layout">
+    <!-- Inner Configurables Sidebar -->
+    <div class="config-sidebar">
+    <h2>Configurables</h2>
+
+    <!-- Always the default active tab -->
+<!--    <div class="config-item active"-->
+<!--         data-section="employeeBulkConfig">-->
+<!--        Employee Bulk Configurables-->
+<!--    </div>-->
+
+    <div class="config-item" data-section="mainAccounts">Clients</div>
+<!--    <div class="config-item" data-section="endClients">End Clients</div>-->
+<!--    <div class="config-item" data-section="migrantTypes">Migrant Types</div>-->
+    <div class="config-item" data-section="rolesows">SOW Roles</div>
+</div>
+
+    <!-- Right-Side Config Content -->
+    <div class="config-main">
+    {% if messages %}
+<div style="padding:10px 20px;">
+    {% for message in messages %}
+        {% if "bulk" in message.extra_tags %}
+            <div style="
+                padding:10px 14px;
+                background: {% if message.tags == 'success' %}#d1fae5{% else %}#fee2e2{% endif %};
+                border-left:4px solid {% if message.tags == 'success' %}#059669{% else %}#dc2626{% endif %};
+                color:#111;
+                border-radius:8px;
+                margin-bottom:8px;
+                font-size:14px;
+            ">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+
+
+
+        <!-- Main Accounts -->
+    <div id="mainAccounts" class="active config-section">
+            <h3>Client Details</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for client in main_clients %}
+                <tr>
+                    <td>{{ client.id }}</td>
+                    <td>{{ client.name }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <a href="{% url 'add_main_client' %}" class="add-button">Add Client</a>
+        </div>
+
+
+        <!-- SOW Roles -->
+        <div id="rolesows" class="config-section">
+            <h3>SOW Roles</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Role Name</th>
+                    <th>Description</th>
+                    <th>Main Client</th>
+                    <th>Manage</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for rolesow in rolesows %}
+                <tr>
+                    <td>{{ rolesow.id }}</td>
+                    <td>{{ rolesow.name }}</td>
+                    <td>{{ rolesow.description|default:"-" }}</td>
+                    <td>{{ rolesow.main_client.name }}</td>
+                    <td><a href="{% url 'configurables_role_details' rolesow.id %}"
+                           class="manage-link">Manage</a></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No SOW Roles available.</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <a href="{% url 'add_rolesow' %}" class="add-button">Add SOW Role</a>
+        </div>
+        <!-- Employee Bulk Configurables -->
+<!-- Employee Bulk Configurables -->
+
+
+
+    </div>
+</div>
+
+<script>
+    // Handle inner configurables sidebar navigation
+    const items = document.querySelectorAll('.config-item');
+    const sections = document.querySelectorAll('.config-section');
+
+    items.forEach(item => {
+        item.addEventListener('click', () => {
+            items.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            const target = item.dataset.section;
+            sections.forEach(sec => sec.classList.toggle('active', sec.id === target));
+        });
+    });
+
+
+document.querySelector("#employeeBulkConfig form").addEventListener("submit", function(e) {
+
+    let mainAccount = document.querySelector("select[name='main_account']").value;
+    let endClient   = document.querySelector("select[name='end_client']").value;
+
+    // ===== CHECK 1: Ensure at least one target filter selected =====
+    if (!mainAccount && !endClient) {
+        e.preventDefault();
+        alert("⚠ Please select at least Main Account or End Client before applying updates.");
+        return;
+    }
+
+    // ===== CHECK 2: Field-specific validations =====
+    const checks = [
+        { field: "ot_allowed", valueField: "ot_allowed_value" },
+        { field: "ph_work_allowed", valueField: "ph_work_allowed_value" },
+        { field: "shift_hours_day", valueField: "shift_hours_day_value" },
+        { field: "shift_days_week", valueField: "shift_days_week_value" },
+        { field: "annual_ent", valueField: "annual_ent_value" },
+        { field: "medical_ent", valueField: "medical_ent_value" },
+        { field: "location", valueField: "location_value" }
+    ];
+
+    for (let cfg of checks) {
+        let isChecked = document.querySelector(`input[name='${cfg.field}']`)?.checked;
+        if (isChecked) {
+            let val = document.querySelector(`[name='${cfg.valueField}']`)?.value;
+
+            if (!val || val === "") {
+                e.preventDefault();
+                alert(`⚠ Please provide a value for '${cfg.field.replace("_", " ")}'.`);
+                return;
+            }
+        }
+    }
+
+});
+
+
+
+</script>
+
+{% endblock %}

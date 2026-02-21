@@ -1,0 +1,352 @@
+{% extends 'employees/dashboard.html' %}
+
+{% block title %}Active Dashboard{% endblock %}
+
+{% block dashboard_content %}
+
+<!-- Chart.js once -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* ==== Base Wrapper ==== */
+.dashboard-wrapper {
+    background: linear-gradient(50deg, #e0f1fa 0%, #f4fbff 100%);
+    min-height: 100vh;
+    padding: 20px 20px;
+    font-family: 'Poppins', sans-serif;
+    color: #111111;
+    border-radius: 18px;
+}
+
+/* ==== KPI Grid ==== */
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.kpi-box {
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.kpi-value {
+    font-size: 26px;
+    color: #1899d7;      /* base primary */
+    font-weight: 700;
+}
+
+.kpi-label {
+    font-size: 13px;
+    color: #555;
+    margin-top: 6px;
+}
+
+/* ==== Chart Grid ==== */
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+.chart-card {
+    background: #ffffff;
+    padding: 14px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+h3.chart-title {
+    font-size: 16px;
+    color: #2186b7; /* base gradient start */
+    margin: 0 0 10px 0;
+}
+
+/* Canvas Sizing */
+.chart-card canvas,
+.chart-block canvas {
+    width: 100% !important;
+    height: 280px !important;
+    display: block;
+}
+
+/* ==== Table Section ==== */
+.table-section {
+    margin: 28px auto;
+    width: 96%;
+    max-width: 1300px;
+}
+
+.table-section h3 {
+    font-size: 20px;
+    color: #1899d7;
+    font-family: 'Montserrat', sans-serif;
+    text-align: left;
+    margin: 12px 0;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: 'Montserrat', sans-serif;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+}
+
+table th {
+    background: linear-gradient(50deg, #2186b7, #3faadd); /* base gradient */
+    padding: 10px;
+    text-align: left;
+    color: #ffffff;       /* white heading text */
+    font-weight: 600;
+    font-size: 13px;
+    border-bottom: 1px solid #d1e7f5;
+}
+
+table td {
+    padding: 10px;
+    font-size: 13px;
+    color: #111111;
+    border-bottom: 1px solid #eef3f7;
+}
+
+table tr:nth-child(even) td {
+    background: #f7fbff;
+}
+
+table tr:hover td {
+    background: #eaf6ff;
+}
+
+/* ==== Responsive ==== */
+@media (max-width: 900px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .chart-card canvas { height: 220px !important; }
+}
+
+@media (max-width: 480px) {
+    .grid-4 { grid-template-columns: 1fr; }
+    .kpi-value { font-size: 22px; }
+    table th, table td { font-size: 12px; padding: 8px; }
+}
+</style>
+
+
+<div class="dashboard-wrapper">
+
+    <!-- KPI boxes -->
+    <div class="grid-4">
+        <div class="kpi-box">
+            <div class="kpi-value">{{ total_employees|default:0 }}</div>
+            <div class="kpi-label">Total Employees</div>
+        </div>
+        <!-- Main Clients -->
+    <div class="kpi-box">
+        <div class="kpi-value">{{ total_main_clients }}</div>
+        <div class="kpi-label">Main Clients</div>
+    </div>
+
+    <!-- End Clients -->
+    <div class="kpi-box">
+        <div class="kpi-value">{{ total_end_clients }}</div>
+        <div class="kpi-label">End Clients</div>
+    </div>
+
+
+    <div class="kpi-box">
+        <div class="kpi-value">{{ submitted_this_month }}</div>
+        <div class="kpi-label">Timesheets Submitted (This Month):</div>
+    </div>
+
+     <div class="kpi-box">
+        <div class="kpi-value">{{ submitted_last_month }}</div>
+        <div class="kpi-label">Timesheets Submitted (Previous Month):</div>
+    </div>
+
+    <div class="kpi-box">
+        <div class="kpi-value">{{ pending_this_month }}</div>
+        <div class="kpi-label">Employees without submitted timesheet for this month</div>
+    </div>
+
+    </div>
+
+    <!-- Charts row 1 -->
+    <div class="grid-2">
+        <div class="chart-card">
+            <h3 class="chart-title">Employees by Main Client</h3>
+            <canvas id="employeesMainClientChart"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <h3 class="chart-title">Employees by End Client</h3>
+            <canvas id="endClientChart"></canvas>
+        </div>
+    </div>
+
+
+    <!-- Charts row 2 -->
+    <div class="grid-2">
+        <div class="chart-card">
+            <h3 class="chart-title">Timesheet Submission Status</h3>
+            <canvas id="submissionStatusChart"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <h3 class="chart-title">Job Type Breakdown</h3>
+            <canvas id="jobTypeChart"></canvas>
+        </div>
+    </div>
+
+    <!-- small summary charts -->
+    <div class="grid-2" style="margin-bottom:24px;">
+        <div class="chart-card">
+            <h3 class="chart-title">Timesheets Submitted (This vs Last Month)</h3>
+            <canvas id="submissionChart"></canvas>
+        </div>
+
+         <div class="chart-card">
+        <h3 class="chart-title">Employee Pass Type Distribution</h3>
+        <canvas id="passTypeChart"></canvas>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:22px;">
+        <div class="chart-card">
+            <h3 class="chart-title">Claims Submitted vs Rejected</h3>
+            <canvas id="claimsChart"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <h3 class="chart-title">Leave - Last Month</h3>
+            <canvas id="leaveChart"></canvas>
+        </div>
+    </div>
+
+</div> {# end dashboard-wrapper #}
+
+<!-- Charts init script -->
+<script>
+(function(){
+    // helper to safe-get numeric value (fallback 0)
+    function safeNumber(v){ return (typeof v === 'number') ? v : (parseFloat(v) || 0); }
+
+    // Employees by Main Client (expects JSON arrays provided by view)
+    new Chart(document.getElementById("employeesMainClientChart"), {
+        type: "pie",
+        data: {
+            labels: {{ employees_by_main_client_labels|safe }},
+            datasets: [{ data: {{ employees_by_main_client_counts|safe }} }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    new Chart(document.getElementById("endClientChart"), {
+    type: "doughnut",
+    data: {
+        labels: {{ employees_by_end_client|safe }}.map(x => x["end_client__name"] || "Unassigned"),
+        datasets: [{
+            data: {{ employees_by_end_client|safe }}.map(x => x.count)
+        }]
+    }
+});
+
+    // Pass Type
+    new Chart(document.getElementById("passTypeChart"), {
+        type: "doughnut",
+        data: {
+            labels: {{ employee_pass_type_labels|safe }},
+            datasets: [{ data: {{ employee_pass_type_counts|safe }} }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Submission Status
+    new Chart(document.getElementById("submissionStatusChart"), {
+        type: "bar",
+        data: {
+            labels: {{ submission_status_labels|safe }},
+            datasets: [{ label: "Count", data: {{ submission_status_counts|safe }} }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Job Type Breakdown
+    new Chart(document.getElementById("jobTypeChart"), {
+        type: "pie",
+        data: {
+            labels: {{ job_type_labels|safe }},
+            datasets: [{ data: {{ job_type_counts|safe }} }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Timesheet submitted (this vs last month)
+    new Chart(document.getElementById("submissionChart"), {
+        type: "bar",
+        data: {
+            labels: ["This Month", "Last Month"],
+            datasets: [{ label: "Submitted", data: [ {{ submitted_this_month|default:0 }}, {{ submitted_last_month|default:0 }} ] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Approved vs Rejected (total)
+    new Chart(document.getElementById("statusChart"), {
+        type: "bar",
+        data: {
+            labels: ["Approved", "Rejected"],
+            datasets: [{ label: "Timesheets", data: [ {{ approved_timesheets|default:0 }}, {{ rejected_timesheets|default:0 }} ] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Claims chart (expects totals computed in view)
+    new Chart(document.getElementById("claimsChart"), {
+        type: "pie",
+        data: {
+            labels: ["Submitted", "Rejected"],
+            datasets: [{ data: [ {{ claims_total_submitted|default:0 }}, {{ claims_total_rejected|default:0 }} ] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Leave chart (expects others_not_on_leave computed in view)
+    new Chart(document.getElementById("leaveChart"), {
+        type: "pie",
+        data: {
+            labels: ["Employees Took Leave", "Employees Working"],
+            datasets: [{ data: [ {{ employees_took_leave_last_month|default:0 }}, {{ others_not_on_leave|default:0 }} ] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+new Chart(document.getElementById("leaveTypeUsageChart"), {
+    type: "bar",
+    data: {
+        labels: {{ leave_type_usage|safe }}.map(x => x["leave_type__name"]),
+        datasets: [{
+            label: "Count",
+            data: {{ leave_type_usage|safe }}.map(x => x.count)
+        }]
+    }
+});
+
+})();
+</script>
+
+{% endblock %}

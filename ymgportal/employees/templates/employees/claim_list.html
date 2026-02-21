@@ -1,0 +1,203 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Claims{% endblock %}
+
+{% block content %}
+
+<style>
+/* PAGE WRAPPER */
+.page-wrapper {
+    max-width: 1050px;
+    margin: 30px auto;
+    padding: 0 12px;
+    margin-top: 10px;
+}
+
+/* PAGE TITLE */
+.page-title {
+    text-align: center;
+    color: #111;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* BACK LINK */
+.back-link {
+    display: block;
+    text-align: center;
+    margin-bottom: 18px;
+    color: #cc1939;
+    font-weight: 500;
+    text-decoration: none;
+}
+.back-link:hover { text-decoration: underline; }
+
+/* CARD CONTAINER */
+.card {
+    background: #fff;
+    padding: 20px 22px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+}
+
+.table-card {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+}
+
+.claim-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.claim-table th,
+.claim-table td {
+    border-radius: 0;
+}
+
+/* NEW CLAIM BUTTON */
+.controls {
+    text-align: right;
+    margin-bottom: 14px;
+}
+
+.btn-primary {
+    padding: 8px 14px;
+    background: #cc1939;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: 0.25s ease;
+}
+.btn-primary:hover {
+    background: linear-gradient(135deg, #cc1939, #f36c7a);
+}
+
+/* TABLE */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.claim-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.claim-table th {
+    background: #cc1939;
+    color: white;
+    padding: 10px;
+    font-weight: 600;
+    text-align: center;
+    font-size: 13px;
+}
+
+.claim-table td {
+    padding: 10px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.claim-table tr:hover td {
+    background: #f8fbff;
+}
+
+/* STATUS PILLS */
+.pill {
+    padding: 5px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.pill-sub { background: #2563eb; color: white; }
+.pill-rej { background: #fee2e2; color: #b91c1c; }
+
+/* VIEW LINK */
+.link-view {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+}
+.link-view:hover { text-decoration: underline; }
+
+/* EMPTY MESSAGE */
+.empty-msg {
+    padding: 20px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+</style>
+
+
+<div class="page-wrapper">
+
+    <h2 class="page-title">My Claims</h2>
+
+    <a href="{% url 'employee_home' %}" class="back-link">⬅ Back to Home</a>
+
+    <div class="card">
+
+        <!-- New Claim Button -->
+        <div class="controls">
+            <a href="{% url 'claim_submit' %}" class="btn-primary">+ New Claim</a>
+        </div>
+
+        <!-- Claims Table -->
+        <div class="table-wrapper table-card">
+        <table class="claim-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Period</th>
+                    <th>Amount (SGD)</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for claim in claims %}
+                <tr>
+                    <td>{{ claim.id }}</td>
+                    <td>{{ claim.start_date }} → {{ claim.end_date }}</td>
+                    <td>${{ claim.amount }}</td>
+
+                    <td>
+                        {% if claim.status == "SUBMITTED" %}
+                            <span class="pill pill-sub">Submitted</span>
+                        {% else %}
+                            <span class="pill pill-rej">Rejected</span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ claim.submitted_at|date:"d M Y" }}</td>
+                    <td><a href="{% url 'claim_detail' claim.id %}" class="link-view">View →</a></td>
+                </tr>
+
+            {% empty %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-msg">No claims found. Create a new claim using the button above.</div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

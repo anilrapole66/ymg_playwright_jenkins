@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="/media/YMGIT_Name_board_logo.png" type="image/jpeg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Django App{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #fff;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    color: #111;
+    padding: 22px 32px;
+    display: flex;
+    height: 70px;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 9999;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.header-right-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.menu-btn {
+padding: 8px 18px;
+   background-color: #cc1939;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 10px;           /* rounded corners */
+    cursor: pointer;
+    transition: transform .3s, border .3s, background .3s, box-shadow .3s,
+    display: inline-flex;
+    align-items: center;        /* vertically align text */
+    gap: 6px;                   /* spacing between text & arrow */
+    width: auto !important;     /* prevent stretching */
+    height: auto !important;    /* prevent stretching */
+    white-space: nowrap;
+}
+
+.menu-btn:hover {
+    background: linear-gradient(135deg, #cc1939, #f36c7a);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+}
+
+
+.user-menu {
+    position: relative;
+    display: block;
+    border-radius: 10px;
+    padding-bottom: 0px;
+
+
+}
+.user-menu menu-btn{
+background-color: #cc1939;
+}
+
+
+
+.dropdown {
+    position: absolute;
+    top: 28px;
+    left: 0;
+    background: white;
+    border-radius: 8px;
+    padding: 8px 0;
+    width: 200px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.12);
+    display: none;
+    z-index: 999;
+}
+
+.dropdown a {
+    display: block;
+    padding: 10px 16px;
+    color: #222;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.dropdown a:hover {
+    background: #f4f8ff;
+    color: #0b78d1;
+}
+.clean-dropdown {
+    position: absolute;
+    top: 42px;
+    left: 0;
+    background: #fff;
+    width: 260px;
+    padding: 0;
+    border-radius: 4px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    display: none;
+    z-index: 999;
+}
+
+/* Arrow */
+.clean-dropdown::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    right: 30px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid white;
+}
+
+.clean-dropdown a {
+    display: block;
+    padding: 14px 18px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111;
+    text-decoration: none;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.clean-dropdown a:last-child {
+    border-bottom: none;
+}
+
+.header .title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 150px;
+}
+
+        .header .title a {
+            display: flex;
+            gap: 10px;
+            color: #111111;
+            text-decoration: none;
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            transition: color 0.25s ease, transform 0.25s ease;
+        }
+
+        .logo-img {
+       width: auto;
+       height: 70px;
+       object-fit: contain;
+       transition: height 0.3s ease;
+       }
+
+        .header .user-info {
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header .user-info span {
+            {#background: rgba(255, 255, 255, 0.2);#}
+            padding: 6px 12px;
+            border-radius: 8px;
+            backdrop-filter: blur(6px);
+        }
+
+        /* 🧩 Matching Logout button style to text */
+        .logout-form {
+            display: inline;
+            margin: 0;
+        }
+
+        .logout-btn {
+    padding: 8px 18px;
+    background-color: #cc1939;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 10px;           /* rounded corners */
+    cursor: pointer;
+    transition: transform .3s, border .3s, background .3s, box-shadow .3s,
+    display: inline-block;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.logout-btn:hover {
+    background: linear-gradient(135deg, #cc1939, #f36c7a);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+    color: #fff;
+}
+       .main-content {
+    position: relative;
+    flex: 1;
+
+    /* Space inside content */
+    padding: 30px;
+
+    /* DO NOT force margin-left unless you have a sidebar */
+    margin: 0 auto;                     /* Centers content automatically */
+
+    max-width: 1200px;                  /* Prevents ultra-wide stretching */
+    width: 100%;
+
+    min-height: calc(100vh - 80px);
+
+    padding-top: 100px;                 /* Below the fixed header */
+
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+
+    background: #fff;
+}
+
+        .header.shrink + .main-content {
+         margin-top: 68px;
+        }
+
+   .site-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #000;
+    color: #fff;
+    text-align: center;
+    padding: 18px 0;
+    font-size: 0.95rem;
+    font-weight: 400;
+    z-index: 9999;
+}
+
+.site-footer p {
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+        @media (max-width: 768px) {
+            .header {
+        padding: 12px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .logo-img {
+        height: 52px;
+    }
+
+
+    .header .title a {
+        font-size: 1.4rem;
+    }
+
+    .main-content {
+        margin-top: 120px;
+        padding-bottom: 100px;
+    }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 10px 15px;
+            }
+
+            .header .title a {
+                font-size: 1.2rem;
+            }
+
+            .logout-btn {
+                font-size: 0.85rem;
+            }
+        }/* --- Hover + Click dropdown support --- */
+
+/* Make dropdown appear on hover */
+{#.user-menu:hover .clean-dropdown {#}
+{#    display: block !important;#}
+{#}#}
+
+/* Highlight menu button on hover */
+.user-menu #menuToggle{
+ background-color: #cc1939;
+}
+
+.user-menu:hover #menuToggle {
+   background: linear-gradient(135deg, #cc1939, #f36c7a);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+}
+
+/* Highlight each menu item on hover */
+.clean-dropdown a:hover {
+    background-color: #f30000;
+    color: #fff;
+}
+
+    </style>
+</head>
+
+<body>
+<div class="page-wrapper">
+    <!-- Header -->
+    <div class="header">
+
+    <!-- LEFT: LOGO -->
+    <div class="title">
+        {% if user.is_authenticated %}
+            {% if user.is_staff or user.is_superuser %}
+                <a href="{% url 'employee_list' %}">
+                    <img src="/media/YMGIT_Name_board_logo.png" alt="Logo" class="logo-img">
+                </a>
+        {% elif user.manager_profile %}
+        <a href="{% url 'manager_employee_list' %}"> <img src="/media/YMGIT_Name_board_logo.png" alt="Logo" class="logo-img"> </a>
+
+        {% else %}
+                <a href="{% url 'employee_home' %}">
+                    <img src="/media/YMGIT_Name_board_logo.png" alt="Logo" class="logo-img">
+                </a>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'login' %}">
+                <img src="/media/YMGIT_Name_board_logo.png" alt="Logo" class="logo-img">
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- RIGHT GROUP (Menu + Welcome + Logout) -->
+    <div class="header-right-group">
+
+        {% if user.is_authenticated and user.employee_profile %}
+        <div class="user-menu" id="userMenu">
+            <span id="menuToggle" class="menu-btn">Menu ▾</span>
+
+            <div class="clean-dropdown" id="menuDropdown">
+                <a href="{% url 'saved_timesheets' %}">Timesheets</a>
+                <a href="{% url 'employee_leave_details' user.employee_profile.id %}">Leave Details</a>
+                <a href="{% url 'claim_list' %}">Claims</a>
+                <a href="{% url 'employee_assets' %}">Assets</a>
+                <a href="{% url 'employee_configure_tasks' %}">Configure Tasks</a>
+                <a href="{% url 'employee_home' %}">Home</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="user-info">
+            {% if user.is_authenticated %}
+            <span>Welcome, {{ user.username }} |</span>
+            <form method="post" action="{% url 'logout' %}" class="logout-form">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const toggle = document.getElementById("menuToggle");
+    const dropdown = document.getElementById("menuDropdown");
+    const menu = document.getElementById("userMenu");
+
+    // CLICK to toggle open/close
+    toggle.addEventListener("click", function (e) {
+        e.stopPropagation();
+        dropdown.style.display =
+            dropdown.style.display === "block" ? "none" : "block";
+    });
+
+    // Close when clicking outside
+    document.addEventListener("click", function (e) {
+        if (!menu.contains(e.target)) {
+            dropdown.style.display = "none";
+        }
+    });
+
+    // HOVER makes dropdown visible (CSS already handles)
+});
+</script>
+
+<footer class="site-footer">
+    <p>Copyright © 2026 YM Global Technologies | All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>

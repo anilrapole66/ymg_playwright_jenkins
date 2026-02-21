@@ -1,0 +1,102 @@
+{% extends 'employees/base.html' %}
+{% block content %}
+<style>
+.container {
+    max-width: 650px;
+    margin: 40px auto;
+    padding: 0 16px;
+}
+.card {
+    background: #fff;
+    padding: 28px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(12, 20, 43, 0.06);
+}
+.title {
+    text-align: center;
+    color: #1e3a8a;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 18px;
+}
+
+/* Claim summary box */
+.claim-summary {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid #e6eef9;
+    margin-bottom: 18px;
+}
+.claim-summary div {
+    margin-bottom: 6px;
+    font-size: 15px;
+}
+.label-strong {
+    font-weight: 700;
+    color: #1e3a8a;
+}
+
+.textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e6eef9;
+    font-size: 15px;
+    min-height: 120px;
+    resize: vertical;
+}
+.textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+
+.submit-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+    margin-top: 16px;
+}
+.cancel {
+    display: block;
+    text-align: center;
+    margin-top: 14px;
+    text-decoration: none;
+    font-weight: 600;
+    color: #2563eb;
+}
+</style>
+
+<div class="container">
+    <div class="card">
+        <div class="title">Reject Claim #{{ claim.id }}</div>
+
+        <!-- Claim summary -->
+        <div class="claim-summary">
+            <div><span class="label-strong">Employee:</span> {{ claim.employee.full_name }}</div>
+            <div><span class="label-strong">Period:</span> {{ claim.start_date }} → {{ claim.end_date }}</div>
+            <div><span class="label-strong">Amount:</span> ${{ claim.amount }}</div>
+            <div><span class="label-strong">Description:</span> {{ claim.description }}</div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <label class="label-strong">Rejection Reason</label>
+            <textarea name="rejected_comment" class="textarea" required
+                      placeholder="Provide a reason for rejecting this claim..."></textarea>
+
+            <button type="submit" class="submit-btn">Reject Claim</button>
+            <a href="{% url 'admin_claim_detail' claim.id %}" class="cancel">← Cancel</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

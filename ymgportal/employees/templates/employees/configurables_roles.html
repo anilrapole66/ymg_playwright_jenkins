@@ -1,0 +1,61 @@
+{% extends 'employees/dashboard.html' %}
+
+{% block title %}
+    Configurables - Roles
+{% endblock %}
+
+{% block dashboard_content %}
+<style>
+    h2 {
+        color: #4a90e2;
+        text-align: center;
+    }
+    .roles-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    .roles-table th, .roles-table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    .roles-table th {
+        background-color: #f4f4f4;
+    }
+    .manage-link {
+        color: #4a90e2;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .manage-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<h2>SOW Roles</h2>
+<table class="roles-table">
+    <thead>
+        <tr>
+            <th>Role SOW</th>
+            <th>Description</th>
+            <th>End Client</th>
+            <th>Manage</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for role in roles %}
+        <tr>
+            <td>{{ role.name }}</td>
+            <td>{{ role.description }}</td>
+            <td>{{ role.end_client.name }}</td>
+            <td><a href="{% url 'configurables_role_details' role.id %}" class="manage-link">Manage</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No SOW Roles found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Timesheets{% endblock %}
+
+{% block content %}
+
+<style>
+/* PAGE WRAPPER */
+.page-wrapper {
+    max-width: 1050px;
+    margin: 25px auto;
+    background: white;
+    padding: 20px;
+}
+
+/* TITLE */
+.page-title {
+    text-align: center;
+    color: #111;
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: -80px;
+    margin-bottom: 15px;
+}
+
+/* BACK LINK */
+.back-link {
+    display: block;
+    text-align: center;
+    margin-bottom: 18px;
+    margin-top: 10px;
+    color: #cc1939;
+    text-decoration: none;
+    font-weight: 500;
+}
+.back-link:hover { text-decoration: underline; }
+
+/* TABLE */
+.ts-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-top: 10px;
+}
+
+.ts-table th,
+.ts-table td {
+    padding: 10px 12px;
+    font-size: 14px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.ts-table th {
+    background: #f1f5fb;
+    font-weight: 600;
+}
+
+.ts-table tr:hover td {
+    background: #f8fbff;
+}
+
+/* STATUS COLORS */
+.status-draft { color: #6b7280; }
+.status-submitted { color: #2563eb; }
+.status-approved { color: #16a34a; }
+.status-rejected { color: #dc2626; }
+
+/* BUTTONS */
+.btn-small {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    margin: 3px 0;
+}
+
+.btn-edit {
+    background: #2563eb;
+    color: white;
+}
+.btn-edit:hover { opacity: 0.9; }
+
+.btn-view {
+    background: #2563eb;
+    color: white;
+}
+.btn-view:hover { opacity: 0.9; }
+
+.btn-export {
+    background: #16a34a;
+    color: white;
+}
+.btn-export:hover { opacity: 0.9; }
+
+.controls {
+    text-align: right;
+    margin-bottom: 14px;
+}
+
+.btn-primary {
+    padding: 8px 14px;
+    background: #cc1939;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: 0.25s ease;
+}
+.btn-primary:hover {
+    background: linear-gradient(135deg, #cc1939, #f36c7a);
+}
+
+/* EMPTY MESSAGE */
+.ts-empty {
+    text-align: center;
+    color: #6b7280;
+    padding: 18px;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+    .page-wrapper { padding: 16px; }
+    .ts-table th, .ts-table td { font-size: 12px; padding: 8px; }
+}
+</style>
+
+
+<div class="page-wrapper">
+
+    <h2 class="page-title">My Submitted Timesheets</h2>
+
+    <a href="{% url 'employee_home' %}" class="back-link">⬅ Back to Home</a>
+    <div class="controls">
+    <a href="{% url 'submit_timesheet' %}" class="btn-primary"> Submit Timesheet </a>
+        </div>
+
+    {% if submissions %}
+    <table class="ts-table">
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Status</th>
+                <th>Submitted On</th>
+                <th>Reviewed On</th>
+                <th>Manager Comments</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for sub in submissions %}
+            {% with y=sub.period.start_date|date:"Y" mon=sub.period.start_date|date:"m" %}
+            <tr>
+                <td>{{ sub.period.start_date|date:"F Y" }}</td>
+
+                <td>
+                    {% if sub.status == "DRAFT" %}
+                        <span class="status-draft">📝 Draft</span>
+                    {% elif sub.status == "SUBMITTED" %}
+                        <span class="status-submitted">📤 Submitted</span>
+                    {% elif sub.status == "APPROVED" %}
+                        <span class="status-approved">✅ Approved</span>
+                    {% elif sub.status == "REJECTED" %}
+                        <span class="status-rejected">❌ Rejected</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ sub.submitted_at|date:"d M Y, h:i A"|default:"-" }}</td>
+                <td>{{ sub.reviewed_at|date:"d M Y, h:i A"|default:"-" }}</td>
+                <td>{{ sub.manager_comment|default:"-" }}</td>
+
+                <td>
+                    {% if sub.status == "DRAFT" or sub.status == "REJECTED" or sub.status == "SUBMITTED" %}
+                        <button class="btn-small btn-edit"
+                                onclick="window.location.href='{% url 'submit_timesheet' %}?year={{ y }}&month={{ mon }}'">
+                            ✏️ Edit
+                        </button>
+                    {% else %}
+                        <button class="btn-small btn-view"
+                                onclick="window.location.href='{% url 'submit_timesheet' %}?year={{ y }}&month={{ mon }}&view=1'">
+                            🔍 View
+                        </button>
+
+                        <button class="btn-small btn-export"
+                                onclick="window.location.href='{% url 'export_timesheet' sub.employee.id mon y %}'">
+                            ⬇️ Export
+                        </button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endwith %}
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+    {% else %}
+        <p class="ts-empty">No timesheets submitted yet.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

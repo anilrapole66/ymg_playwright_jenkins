@@ -1,0 +1,2961 @@
+<!DOCTYPE html>
+{% extends 'employees/base.html' %}
+
+{% block title %}
+    Submit Timesheet
+{% endblock %}
+
+{% block content %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap')
+
+html {
+  font-size: 14px;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+#page-scale {
+  zoom: 0.85;
+}
+
+body {
+  font-family: "Montserrat", sans-serif;
+  background: linear-gradient(160deg, #f1f5f9, #e2e8f0);
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.4;
+
+  color: #111111;
+  overflow-x: hidden;
+  margin-bottom: 12px;    /* reduced */
+}
+
+
+#reviewer-banner {
+    background: #0f172a;             /* dark navy */
+    color: #f8fafc;                  /* soft white */
+    font-size: 18px;
+    font-weight: 600;
+    padding: 18px 26px;
+    text-align: center;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    margin-top: 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    letter-spacing: 0.4px;
+    width: 100%;
+    animation: fadeInBanner 0.4s ease-out;
+}
+@keyframes fadeInBanner {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h2, h3 {
+  text-align: center;
+  margin: 32px 0 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+h2 {
+  color: #111111;
+  font-size: 30px;
+  background: #111111;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+h3 {
+  color: #f30000;
+  font-size: 20px;
+  border-left: 4px solid #111111;
+  padding-left: 10px;
+  margin: 30px 20px 10px;
+  text-align: left;
+}
+
+/* === Month Picker === */
+.form-container {
+  text-align: center;
+  margin: 25px 0;
+}
+a.back-link {
+            display: block;
+            margin-top: 25px;
+            text-decoration: none;
+            color: #f30000;
+            text-align: center;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.25s ease;
+        }
+
+        a.back-link:hover {
+            color: #f30000;
+            text-decoration: underline;
+            transform: translateY(-1px);
+        }
+
+.month-picker-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 14px;
+  padding: 12px 24px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+.month-picker-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.12);
+}
+
+.month-picker-container button {
+  background: #f30000;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.25s ease-in-out;
+}
+
+.month-picker-container button:hover {
+      background: linear-gradient(135deg, #cc1939, #f36c7a);
+  transform: scale(1.1);
+}
+
+.month-picker-container span {
+  margin: 0 14px;
+  font-weight: 600;
+  font-size: 16px;
+  color: #0f172a;
+}
+
+/* === Table Styling === */
+table {
+  width: 100%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 14px;
+  overflow: hidden;
+  table-layout: auto !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+table:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+}
+
+th, td {
+  border: 1px solid #e2e8f0;
+  padding: 15px 5px;
+  text-align: center;
+  font-size: 14px;
+  vertical-align: middle;
+  transition: background 0.2s ease;
+}
+
+th {
+  background: #f30000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 48px;
+  line-height: 1.2;
+  vertical-align: middle;
+  padding: 10px 6px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 3px solid #111111;
+}
+
+td {
+  background-color: #ffffff;
+    overflow: visible !important;
+}
+
+td:hover {
+  background-color: #f9fbff;
+}
+tr:hover td {
+  background-color: #f1f5ff !important; /* slightly stronger blue tint */
+}
+
+th.weekend-header {
+    background: linear-gradient(135deg, #ffd1e8, #ffbfe2) !important;
+    color: #5a0030 !important;
+    font-weight: 700;
+}
+
+/* Weekend Cells - Soft Gradient Pure Pink */
+td.weekend-cell {
+    background: linear-gradient(135deg, #ffd6e8, #ffb3d9) !important;
+    color: #5a0030 !important;
+}
+
+/* Weekend Totals - Stronger Gradient Pure Pink */
+tfoot td.weekend-total {
+    background: linear-gradient(135deg, #ff4da6, #ff66c4) !important;
+    color: white !important;
+    font-weight: 700;
+}
+
+/* === Inputs & Selects === */
+table input[type="number"],
+table select {
+   width: auto !important;
+    min-width: 100px;
+    max-width: none !important;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  outline: none;
+  background-color: #f9fafb;
+  transition: all 0.25s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  height: 40px;
+  box-sizing: border-box;
+}
+
+table select {
+  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='10' width='10' xmlns='http://www.w3.org/2000/svg'><polygon points='0,0 10,0 5,7'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px;
+  padding-right: 28px;
+}
+
+table input:hover,
+table select:hover {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  background-color: #ffffff;
+}
+
+table input:focus,
+table select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+  background-color: #fff;
+}
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: block;
+}
+
+/* --- Hidden by default --- */
+.table-responsive::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+}
+
+/* --- Show on hover --- */
+.table-responsive:hover::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+/* Frosted glass track */
+.table-responsive:hover::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+/* Frosted-glass thumb */
+.table-responsive:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.5);
+    box-shadow: 0 0 8px rgba(37, 99, 235, 0.45); /* soft blue glow */
+    transition: 0.25s ease-in-out;
+}
+
+/* More intense frosted glow when hovering */
+.table-responsive:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.75);
+}
+
+
+/* Medical Upload Box */
+#medical-upload-box {
+    position: fixed;
+    margin-top: -40px;
+
+    width: 260px;
+    padding: 18px 20px;
+
+    background: #ffffff;
+    border-radius: 14px;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+
+    font-family: 'Inter', sans-serif;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Title */
+#medical-upload-box strong {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f30000;
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* File Input */
+#medical-file-input {
+    width: 100%;
+    padding: 6px;
+    font-size: 13px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+}
+
+/* Upload Button */
+#medical-upload-box button {
+    margin-top: 10px;
+    width: 100%;
+
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: 0.25s ease;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+#medical-upload-box button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+}
+
+/* Uploaded files list */
+#uploaded-files-list {
+    margin-top: 12px;
+    max-height: 130px;
+    overflow-y: auto;
+    font-size: 13px;
+}
+
+#uploaded-files-list a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+#uploaded-files-list a:hover {
+    text-decoration: underline;
+}
+
+#uploaded-files-list button {
+    background: none;
+    border: none;
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* Smooth fade-in */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* === Buttons === */
+.add-row-btn {
+  display: block;
+  margin: 24px auto;
+  padding: 10px 26px;
+  border: none;
+  border-radius: 12px;
+  background: #f30000;
+  color: #fff;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+  transition: all 0.3s ease;
+}
+
+.add-row-btn:hover {
+    background: linear-gradient(135deg, #cc1939, #f36c7a);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(37, 99, 235, 0.35);
+}
+
+button[type="submit"] {
+   padding: 8px 18px;
+    background-color: #cc1939;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 10px;           /* rounded corners */
+    cursor: pointer;
+    transition: transform .3s, border .3s, background .3s, box-shadow .3s;
+    display: inline-block;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+button[type="submit"]:hover {
+     background: linear-gradient(135deg, #cc1939, #f36c7a);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(37, 99, 235, 0.45);
+}
+
+/* (Optional) Subtle tint for rows marked as Leave mode */
+tr.leave-row {
+  background-color: #fff7f3 !important; /* very light peach */
+}
+
+/* (Optional) Subtle tint for rows marked as Public Holiday mode */
+tr.holiday-row {
+  background-color: #f2f6ff !important; /* very light blue */
+}
+
+/* Highlight only the individual leave day cell */
+td.leave-cell-selected {
+  background-color: #ff7043 !important; /* warm orange */
+  color: #fff !important;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+/* Holiday day cell (single cell highlight if you use holiday dropdowns) */
+td.holiday-cell-selected {
+  background-color: #2563eb !important; /* blue */
+  color: #fff !important;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+/* Optional: Hover effect to make table interactive */
+td.leave-cell-selected:hover,
+td.holiday-cell-selected:hover {
+  filter: brightness(1.1);
+}
+
+/* === Modern Pill Styling for WH / OTH / BH === */
+.day-total {
+  text-align: center;
+  padding: 10px 6px;
+}
+
+.day-total strong {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Pills for WH / OTH / BH */
+.total-pill {
+  display: -webkit-flex;
+  padding: 4px 10px;
+  margin: 4px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #fff;
+  font-weight: 600;
+  min-width: 55px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.25s ease;
+}
+
+.total-pill.wh { background: #2563eb; }  /* Work Hours - blue */
+.total-pill.oth { background: #f97316; } /* OT Hours - orange */
+.total-pill.bh { background: #64748b; }  /* Break Hours - gray */
+
+.total-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.total-overall {
+  font-size: 12px;
+  color: #1e3a8a;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* === Monthly Summary Box === */
+#monthly-summary {
+  width: 75%;
+  margin: 30px auto;
+  padding: 40px 40px;
+  text-align: center;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #ffffff, #f1f5fb);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  color: #1e293b;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+/* Subtle decorative gradient */
+#monthly-summary::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -40%;
+  width: 180%;
+  height: 180%;
+  background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 70%);
+  transform: rotate(15deg);
+}
+
+#monthly-summary:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(37, 99, 235, 0.15);
+}
+
+/* Header */
+#monthly-summary h3 {
+  font-size: 26px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+  background:#111111;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+#monthly-summary h3::after {
+  content: "";
+  display: block;
+  width: 50px;
+  height: 3px;
+  margin: 10px auto 0;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    #2563eb 0%,
+    #3b82f6 20%,
+    #f97316 45%,
+    #64748b 70%,
+    #dc2626 100%
+  );
+}
+
+
+.summary-stats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 25px;
+}
+
+.summary-stats > div {
+  flex: 1 1 220px;
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 18px 25px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.summary-stats > div:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* === Color-coded styling for each metric === */
+.summary-stats .work {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #2563eb;
+}
+
+.summary-stats .ot {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #f97316;
+}
+
+.summary-stats .break {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+}
+
+.summary-stats .leaves {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+/* === Make both label and number the same color === */
+.summary-stats span,
+.summary-stats strong {
+  font-weight: 600;
+  font-size: 16px;
+  color: inherit;
+}
+
+.summary-stats strong {
+  font-size: 18px;
+  display: block;
+  margin-top: 6px;
+}
+
+/* === Modern Save Button Styling === */
+.save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  background: #f30000;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+
+  padding: 14px 38px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+  transition: all 0.25s ease-in-out;
+  font-family: 'Inter', sans-serif;
+}
+
+.save-btn:hover {
+        background: linear-gradient(135deg, #cc1939, #f36c7a);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+}
+
+.save-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
+}
+
+.save-btn:disabled {
+  background: #93c5fd;
+  color: #f8fafc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Center alignment */
+.form-container {
+  text-align: center;
+  margin: 20px auto;
+}
+
+/* ⚠️ Compact warning icon */
+.swal-ultra-compact .swal2-icon {
+  width: 56px !important;
+  height: 56px !important;
+  margin: 8px auto 4px !important;
+  transform: scale(0.85);
+}
+
+/* Shrink the exclamation mark inside */
+.swal-ultra-compact .swal2-icon-content {
+  font-size: 26px !important;
+  line-height: 56px !important;
+}
+
+/* Reduce popup padding */
+.swal-ultra-compact {
+  padding: 12px !important;
+}
+
+/* Tighten title */
+.swal-ultra-compact .swal2-title {
+  font-size: 18px !important;
+  margin: 4px 0 6px !important;
+  line-height: 1.2 !important;
+}
+
+/* Tighten content spacing */
+.swal-ultra-compact .swal2-html-container {
+  margin: 4px 0 0 !important;
+  padding: 0 !important;
+}
+/* Buttons tighter */
+.swal-ultra-compact .swal2-actions {
+  margin-top: 10px !important;
+}
+
+.swal-ultra-compact .swal2-actions button {
+  padding: 10px 10px !important;
+  font-size: 13px !important;
+  border-radius: 4px !important;
+
+}
+
+/* 📱 Mobile devices (up to 768px width) */
+@media (max-width: 768px) {
+  body {
+    font-size: 13px;
+    padding: 0 10px;
+  }
+
+  h2 {
+    font-size: 22px;
+    margin: 20px 0 10px;
+  }
+
+  h3 {
+    font-size: 16px;
+    padding-left: 8px;
+    border-left-width: 3px;
+  }
+
+  .month-picker-container {
+    flex-direction: column;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .month-picker-container span {
+    font-size: 14px;
+  }
+
+  /* Make table scrollable horizontally */
+  table {
+    width: 100%;
+    font-size: 12px;
+    margin: 20px 0;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-radius: 8px;
+  }
+
+  th, td {
+    padding: 8px;
+  }
+
+  table input[type="number"],
+  table select {
+    font-size: 12px;
+    height: 34px;
+  }
+
+  /* Make pills smaller */
+  .total-pill {
+    padding: 3px 6px;
+    font-size: 11px;
+    min-width: 45px;
+  }
+
+  .total-overall {
+    font-size: 11px;
+  }
+
+  /* Save buttons stack */
+  .save-btn {
+    padding: 10px 24px;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .form-container {
+    margin: 20px 0 30px;
+  }
+
+  /* Monthly Summary */
+  #monthly-summary {
+    width: 100%;
+    padding: 20px 14px;
+    font-size: 13px;
+  }
+
+  #monthly-summary h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  #monthly-summary p {
+    font-size: 13px;
+    margin: 6px 0;
+  }
+
+  /* Buttons inside table */
+  .add-row-btn {
+    padding: 8px 20px;
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  #page-scale {
+    transform: none;
+    width: 100%;
+  }
+
+  table {
+    width: 98%;
+    font-size: 13px;
+  }
+
+  th, td {
+    padding: 10px 6px;
+  }
+
+  .save-btn {
+    padding: 12px 30px;
+    font-size: 15px;
+  }
+
+  #monthly-summary {
+    width: 95%;
+    margin: 30px auto;
+    padding: 24px 16px;
+  }
+
+  #monthly-summary h3 {
+    font-size: 18px;
+  }
+
+  #monthly-summary p {
+    font-size: 14px;
+  }
+}
+
+/* 🖥️ Large desktop (above 1440px) */
+@media (min-width: 1440px) {
+  body {
+    font-size: 16px;
+  }
+
+  table {
+    width: 85%;
+  }
+
+  #monthly-summary {
+    width: 80%;
+  }
+}
+
+/* Public holiday header highlight */
+thead th[data-date].ph-header {
+    background: #d0e4ff !important;
+    color: #003777 !important;
+    position: relative;
+    font-weight: 600;
+    border-bottom: 3px solid #1e40af;
+}
+
+thead th {
+  vertical-align: middle;
+  text-align: center;
+}
+
+/* small holiday badge under header */
+thead th[data-date].ph-header::after {
+  content: attr(data-hol-name);
+  display: block;
+  font-size: 11px;
+  color: #1e40af;
+  text-align: center;
+  margin-top: 6px;
+}
+
+td.ph-locked {
+    background: #4FACD6 !important;
+    color: #4a5d8a !important;
+    position: relative;
+    border-left: 2px solid #1e40af;
+    border-right: 2px solid #1e40af;
+        border-bottom: 2px solid #1e40af;
+
+}
+#timesheet-scale-wrapper {
+    transform: none;
+    transform-origin: top center;
+}
+
+/* Prevent horizontal scrollbar due to scaling */
+
+/* small "PH" badge inside the cell */
+td.ph-locked::after {
+    content: "PH";
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    font-size: 10px;
+    background: #1e40af;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+{#input.break-footer-input.ph-locked {#}
+{#    background: #e8f0ff !important;#}
+{#    border: 1px solid #1e40af !important;#}
+{#    color: #31518a !important;#}
+{#}#}
+
+/* If PH_WORK_ALLOWED, give a softer hint (but inputs are enabled) */
+td.ph-allowed {
+  background: #fffaf0;
+}
+</style>
+  <script>
+    /* ============================================
+       Globals: TASK_TYPES & TASKS injected by Django
+       Example injection in view:
+         task_types_json = json.dumps(task_types)
+         tasks_json = json.dumps(tasks)
+       ============================================ */
+    const publicHolidays = {{ public_holidays|safe }};
+    {#const MEDICAL_FILES = {{ medical_files|safe }};#}
+    const PH_WORK_ALLOWED = JSON.parse('{{ ph_work_allowed|default:"false" }}');  // NEW
+    const READ_ONLY = JSON.parse('{{ read_only|default:"false" }}');
+    const LEAVES_LOCKED = JSON.parse('{{ leaves_locked|default:"true" }}');
+    const IS_PMO = JSON.parse('{{ is_pmo|default:"false" }}');
+    const OT_ALLOWED = JSON.parse('{{ ot_allowed|default:"false" }}');
+    const TASK_TYPES = {{ task_types_json|safe }};
+    const TASKS = {{ tasks_json|safe }};
+    const LEAVE_TYPES = {{ leave_types_json|safe }};
+    // --- Preloaded data injected by Django ---
+    const CURRENT_MONTH = "{{ current_month }}";
+    const PRELOADED_DATA = {{ timesheet_data_json|safe }};
+
+    /* Month selector state */
+    let selectedYear = new Date().getFullYear();
+    let selectedMonth = new Date().getMonth() + 1;
+
+    function buildLeaveDropdownHTML(selectedId = "") {
+  const lockedAttr = LEAVES_LOCKED ? "disabled title='Leave is managed in Apply Portal'" : "";
+  let html = `<select name="leave_type" onchange="handleLeaveSelection(this)" ${lockedAttr}>
+                <option value=""> Select Leave </option>`;
+  LEAVE_TYPES.forEach(lt => {
+    const sel = String(lt.id) === String(selectedId) ? "selected" : "";
+    html += `<option value="${lt.id}" ${sel}>${escapeHtml(lt.name)}</option>`;
+  });
+  html += `</select>`;
+  return html;
+}
+
+
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[m])); }
+    function formatDate(d) { return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }); }
+
+    /* -------------------------
+       Month helpers
+       ------------------------- */
+
+    function updateMonthDisplay() {
+  const display = document.getElementById("month-display");
+  display.textContent = `${new Date(selectedYear, selectedMonth - 1).toLocaleString("default", { month: "long" })} ${selectedYear}`;
+
+  const hiddenMonth = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}`;
+  document.getElementById("hidden-month-input").value = hiddenMonth;
+
+    generateWeeks();
+    highlightPublicHolidays();
+    highlightWeekends();
+
+  // ✅ After regenerating weeks, auto-fill if data matches this month
+  if (PRELOADED_DATA && PRELOADED_DATA.length > 0) {
+    const firstDate = PRELOADED_DATA[0].date;
+    if (firstDate.startsWith(hiddenMonth)) {
+      console.log(`📅 Auto-filling saved timesheet for ${hiddenMonth}`);
+      // wait a bit for table render to complete
+      setTimeout(() => fillTimesheet(PRELOADED_DATA), 300);
+    } else {
+      console.log(`ℹ️ No preloaded data for ${hiddenMonth}`);
+    }
+  }
+}
+
+
+async function changeMonth(delta) {
+  selectedMonth += delta;
+  if (selectedMonth > 12) { selectedMonth = 1; selectedYear++; }
+  else if (selectedMonth < 1) { selectedMonth = 12; selectedYear--; }
+
+  const year = selectedYear;
+  const month = String(selectedMonth).padStart(2, "0");
+  const url = `/submit_timesheet/?year=${year}&month=${month}`;
+
+  console.log("🔄 Navigating to:", url);
+  window.location.href = url; // ✅ Reload page to let backend determine read-only mode
+}
+
+async function loadTimesheetForMonth(year, month) {
+  const url = `/submit_timesheet/?year=${year}&month=${String(month).padStart(2, "0")}`;
+  console.log("🔄 Loading timesheet for:", url);
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const html = await response.text();
+
+    // Extract JSON data from the response HTML (PRELOADED_DATA)
+    const match = html.match(/const PRELOADED_DATA\s*=\s*(\[.*?\]);/s);
+    const newData = match ? JSON.parse(match[1]) : [];
+    console.log(`📦 Loaded ${newData.length} entries for ${year}-${month}`);
+
+    // Update global data & refresh table
+    PRELOADED_DATA.splice(0, PRELOADED_DATA.length, ...newData);
+    generateWeeks();
+        highlightPublicHolidays();
+        highlightWeekends();
+
+    if (newData.length > 0) {
+      setTimeout(() => { fillTimesheet(newData); highlightPublicHolidays(); }, 300);
+    } else {
+      console.log("ℹ️ No saved data for this month");
+    }
+  } catch (err) {
+    console.error("❌ Error loading timesheet data:", err);
+  }
+}
+
+function applyReadOnlyMode() {
+  if (!READ_ONLY) return;
+  const mcBox = document.getElementById("medical-upload-box");
+if (mcBox) mcBox.style.display = "none";
+
+  console.log("🔒 Read-only mode: all inputs locked.");
+
+  // 1️⃣ Disable every editable control in the timesheet area
+  document.querySelectorAll(
+    '#weeks-container input, #weeks-container select, #weeks-container textarea, #weeks-container button'
+  ).forEach(el => {
+    el.disabled = true;
+    el.classList.add('readonly-disabled');
+    el.style.cursor = 'not-allowed';
+  });
+
+  // 2️⃣ Disable all Add Row / Delete / Save / Submit buttons everywhere
+  document.querySelectorAll('button').forEach(btn => {
+    const text = (btn.textContent || '').toLowerCase();
+    if (
+      text.includes('save') ||
+      text.includes('submit') ||
+      text.includes('add row') ||
+      text.includes('delete')
+    ) {
+      btn.disabled = true;
+      btn.style.opacity = 0.6;
+      btn.style.cursor = 'not-allowed';
+    }
+  });
+
+  // 3️⃣ Prevent any input edits (fallback protection)
+  document.querySelectorAll('#weeks-container input, #weeks-container textarea').forEach(el => {
+    el.addEventListener('keydown', e => e.preventDefault());
+    el.addEventListener('paste', e => e.preventDefault());
+    el.addEventListener('mousedown', e => e.preventDefault());
+  });
+
+  // 4️⃣ Add a transparent “shield” overlay to block clicks visually
+  const overlay = document.createElement('div');
+  overlay.id = 'readonly-overlay';
+  overlay.style.position = 'absolute';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100%';
+  overlay.style.height = '100%';
+  overlay.style.background = 'rgba(255,255,255,0.3)';
+  overlay.style.backdropFilter = 'blur(2px)';
+  overlay.style.zIndex = '1000';
+  overlay.style.cursor = 'not-allowed';
+  document.body.appendChild(overlay);
+
+  // 5️⃣ Show a banner message to the user
+  const banner = document.createElement('div');
+  banner.textContent = '🔒 This timesheet is read-only and cannot be edited.';
+  banner.style.position = 'fixed';
+  banner.style.top = '10px';
+  banner.style.left = '50%';
+  banner.style.transform = 'translateX(-50%)';
+  banner.style.background = '#2563eb';
+  banner.style.color = 'white';
+  banner.style.padding = '10px 18px';
+  banner.style.borderRadius = '8px';
+  banner.style.zIndex = '2000';
+  banner.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+  document.body.appendChild(banner);
+
+  // 6️⃣ Disable keyboard navigation
+  document.addEventListener('keydown', e => e.preventDefault(), true);
+}
+
+
+function collectTimesheetData() {
+  const entries = [];
+  const [selYear, selMonth] = document.getElementById("hidden-month-input").value.split("-").map(Number);
+
+  document.querySelectorAll("table").forEach(table => {
+    const dayHeaders = Array.from(table.querySelectorAll("thead th[data-date]"));
+    table.querySelectorAll("tbody tr").forEach(row => {
+      const jobType = row.querySelector("select[name='job_type']")?.value || "Work";
+      const typeId = row.querySelector("select[name='type_default']")?.value || null;
+      const taskId = row.querySelector("select[name='task_select']")?.value || null;
+      const otFlag = row.querySelector("select[name='ot_flag']")?.value || "No";
+      const desc = row.querySelector(".desc")?.textContent?.trim() || "";
+      const leaveTypeId = row.querySelector("select[name='leave_type']")?.value || null;
+
+      // === Case: Public Holiday rows ===
+if (jobType === "Public Holiday") {
+  const holidaySelects = row.querySelectorAll("select[name='holiday_type']");
+  holidaySelects.forEach((sel, idx) => {
+    if (sel.value !== "Public Holiday") return;
+    const date = dayHeaders[idx]?.dataset.date;
+    if (!date) return;
+
+    const d = new Date(date);
+    if (d.getFullYear() !== selYear || (d.getMonth() + 1) !== selMonth) return;
+
+    entries.push({
+      date,
+      task_type_id: null,
+      task_id: null,
+      job_type: "Public Holiday",
+      work_hours: 0,
+      ot_hours: 0,
+      break_hours: 0,
+      leave_type_id: null,
+      description: "Public Holiday"
+    });
+  });
+
+  // continue to next row
+  return;
+}
+
+      // === ✅ Case 1: Leave rows ===
+
+        if (jobType === "Leave") {
+        const leaveSelects = row.querySelectorAll("select[name='leave_type']");
+        leaveSelects.forEach((sel, idx) => {
+          const leaveTypeId = sel.value;
+          if (!leaveTypeId) return;
+          const date = dayHeaders[idx]?.dataset.date;
+          if (!date) return;
+
+          const d = new Date(date);
+          if (d.getFullYear() !== selYear || (d.getMonth() + 1) !== selMonth) return;
+
+          entries.push({
+            date,
+            task_type_id: null,
+            task_id: null,
+            job_type: "Leave",
+            work_hours: 0,
+            ot_hours: 0,
+            break_hours: 0,
+            leave_type_id: leaveTypeId,
+            description: "Leave Taken"
+          });
+        });
+        return; // skip rest for this row
+      }
+
+      // === ✅ Case 2: Work / OT rows ===
+      const inputs = Array.from(row.querySelectorAll("td input[type='number']"));
+      inputs.forEach(inp => {
+        const date = inp.dataset.date;
+        if (!date) return;
+
+        const d = new Date(date);
+        if (d.getFullYear() !== selYear || (d.getMonth() + 1) !== selMonth) return;
+
+        const hours = parseFloat(inp.value) || 0;
+        if (hours <= 0) return;
+
+        let work_hours = 0, ot_hours = 0, break_hours = 0;
+        if (jobType.toLowerCase() === "work") {
+          if (otFlag === "Yes") ot_hours = hours;
+          else work_hours = hours;
+        }
+
+        // ✅ Pick break hours from footer if any
+        const footerInput = table.querySelector(`tfoot input.break-footer-input[data-date="${date}"]`);
+        if (footerInput) break_hours = parseFloat(footerInput.value) || 0;
+
+        entries.push({
+          date,
+          task_type_id: typeId,
+          task_id: taskId,
+          job_type: jobType,
+          work_hours,
+          ot_hours,
+          break_hours,
+          leave_type_id: leaveTypeId,
+          description: desc,
+            ot_flag: otFlag
+        });
+      });
+    });
+  });
+
+  console.log("✅ Collected entries:", entries);
+  return entries;
+}
+
+async function submitTimesheet(isSubmit = false) {
+
+    if (READ_ONLY) {
+        alert('This timesheet is view-only. You cannot save or submit it.');
+        return;
+    }
+
+    // -----------------------------------------------------------
+    // SUBMIT ONLY → Show submit confirmation
+    // -----------------------------------------------------------
+    if (isSubmit) {
+        const result = await Swal.fire({
+            title: `Confirm Submit?`,
+            text: "Once submitted, the timesheet will be sent to the Manager/HR for review.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#2563eb",
+            cancelButtonColor: "#64748b",
+            confirmButtonText: `Yes, Submit`,
+            cancelButtonText: "Cancel",
+        });
+
+        if (!result.isConfirmed) {
+            Swal.fire("Cancelled", "No changes were made.", "info");
+            return;
+        }
+    }
+
+    // -----------------------------------------------------------
+    // MISSING DATES CHECK → ONLY FOR SUBMIT NOW
+    // -----------------------------------------------------------
+    if (isSubmit) {
+
+        const missingDates = getMissingDates();
+
+        if (missingDates.length > 0) {
+
+            const formatted = missingDates
+                .map(d => {
+                    const dt = new Date(d).toLocaleDateString("en-GB", {
+                        weekday: "short",
+                        day: "2-digit",
+                        month: "short"
+                    });
+
+                    return `
+                        <div style="
+                            padding:8px 12px;
+                            margin:4px 0;
+                            background:#ffffff;
+                            border:1px solid #e2e8f0;
+                            border-radius:8px;
+                            font-size:14px;
+                            color:#1e293b;
+                            display:flex;
+                            align-items:center;
+                            gap:10px;">
+                            <span style="
+                                width:8px;
+                                height:8px;
+                                background:#2563eb;
+                                border-radius:50%;
+                            "></span>
+                            ${dt}
+                        </div>`;
+                })
+                .join("");
+
+            const result = await Swal.fire({
+                icon: "warning",
+                title: "Missing Entries Detected",
+                html: `
+                    <p style="font-size:15px; margin-bottom:4px; color:#475569;">
+                        Some of the weekdays are still empty.<br> Please fill them in if needed.
+                    </p>
+
+                    <div style="
+                        display:grid;
+                        grid-template-columns:1fr 1fr;
+                        column-gap:8px;
+                        margin-top: 10px;
+                        row-gap:2px;
+                        padding:6px;
+                        background:#f8fbff;
+                        border:1px solid #dbe7ff;
+                        border-radius:6px;
+                        max-height:155px;
+                        overflow-y:auto;">
+                        ${formatted}
+                    </div>
+                `,
+                 width: "480px",
+                 customClass: {
+                 popup: "swal-ultra-compact"
+                 },
+                showCancelButton: true,
+                confirmButtonText: "Proceed Anyway",
+                cancelButtonText: "Go Back & Fix",
+                confirmButtonColor: "#2563eb",
+                cancelButtonColor: "#6b7280",
+            });
+
+            if (!result.isConfirmed) return;
+        }
+    }
+
+    // -----------------------------------------------------------
+    // TYPE/TASK VALIDATION (unchanged)
+    // -----------------------------------------------------------
+    const invalidRows = [];
+    document.querySelectorAll("table tbody tr").forEach((row, idx) => {
+        const jobSelect = row.querySelector("select[name='job_type']");
+        const typeSelect = row.querySelector("select[name='type_default']");
+        const taskSelect = row.querySelector("select[name='task_select']");
+
+        if (jobSelect && jobSelect.value === "Work") {
+            if (typeSelect && typeSelect.value && (!taskSelect || !taskSelect.value)) {
+                invalidRows.push(idx + 1);
+            }
+        }
+    });
+
+    if (invalidRows.length > 0) {
+        await Swal.fire({
+            icon: "warning",
+            title: "Missing Task Selection",
+            html: `You selected a <b>Type</b> but didn’t choose a <b>Task</b> in row(s): <b>${invalidRows.join(", ")}</b>.`,
+            confirmButtonColor: "#2563eb",
+        });
+        return;
+    }
+
+    const entries = collectTimesheetData();
+    const month = document.getElementById("hidden-month-input").value;
+    const remark = document.getElementById("remark-input")?.value || "";
+    const payload = { month, entries, remark, submit: isSubmit };
+
+    if (IS_PMO) {
+        const invalidRows = [];
+        document.querySelectorAll('tr').forEach(row => {
+            const jobType = row.querySelector('[name="job_type"]')?.value;
+            if (jobType === "Work") {
+                const typeVal = row.querySelector('[name="type_default"]')?.value;
+                const taskVal = row.querySelector('[name="task_select"]')?.value;
+                if (!typeVal || !taskVal) {
+                    invalidRows.push(row);
+                }
+            }
+        });
+
+        if (invalidRows.length > 0) {
+            alert("⚠️ Please select both Type and Task for all Work entries before submitting.");
+            invalidRows.forEach(r => r.style.backgroundColor = "#fff0f0");
+            return;
+        }
+    }
+
+    // -----------------------------------------------------------
+    // SUBMIT TO SERVER
+    // -----------------------------------------------------------
+    const response = await fetch("{% url 'submit_timesheet' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (data.status === "success") {
+        Swal.fire("Success", data.message, "success").then(() => {
+            window.location.href = data.redirect;
+        });
+    } else {
+        Swal.fire("Error", data.message || "Something went wrong.", "error");
+    }
+}
+
+
+    /* -------------------------
+       Week generation & UI build
+       ------------------------- */
+
+function generateWeeks() {
+  const container = document.getElementById("weeks-container");
+  container.innerHTML = "";
+
+  const [year, month] = document
+    .getElementById("hidden-month-input")
+    .value.split("-")
+    .map(Number);
+
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0);
+
+  // ✅ always start exactly from the 1st of this month
+  let weekStart = new Date(firstDay);
+  let weekCount = 1;
+
+  while (weekStart <= lastDay) {
+    // --- compute end-of-week (Sunday) ---
+    const weekEnd = new Date(weekStart);
+    let day = weekStart.getDay();
+    let offset = (day === 0) ? 0 : (7 - day);
+    weekEnd.setDate(weekStart.getDate() + offset);
+    if (weekEnd > lastDay) weekEnd.setTime(lastDay.getTime());
+
+    // --- collect only this month's days ---
+    const days = [];
+    const cur = new Date(weekStart);
+    while (cur <= weekEnd) {
+      if (cur.getMonth() + 1 === month && cur.getFullYear() === year) {
+        days.push({
+          label: cur.toLocaleDateString("en-GB", {
+            weekday: "short",
+            day: "2-digit",
+          }),
+          iso: `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}-${String(cur.getDate()).padStart(2, "0")}`,
+        });
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
+
+    if (days.length === 0) break; // safety
+
+    const weekId = `week-${weekCount}`;
+    const tbodyId = `timesheet-body-${weekId}`;
+
+    // --- build week block ---
+    container.insertAdjacentHTML(
+      "beforeend",
+      `
+      <div class="week-block" id="${weekId}">
+        <h3>Week ${weekCount}: ${formatDate(new Date(days[0].iso))} - ${formatDate(
+        new Date(days[days.length - 1].iso)
+      )}</h3>
+       <div class="table-responsive">
+        <table data-day-count="${days.length}">
+          <thead>
+            <tr>
+              <th>Job</th>
+              <th>Type</th>
+              <th>Task</th>
+              <th>Description</th>
+              <th>OT</th>
+              ${days
+                .map(
+                  (d) =>
+                    `<th data-date="${d.iso}">${escapeHtml(d.label)}</th>`
+                )
+                .join("")}
+              <th>Total Hours</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="${tbodyId}">
+    <!-- No default rows. User adds them manually. -->
+          </tbody>
+          <tfoot>
+           <tr class="break-edit-row" style="display: none;">
+              <td colspan="5">Break Hours</td>
+              ${days
+                .map(
+                  (d) => `
+                <td>
+                  <input class="break-footer-input"
+                         type="number"
+                         min="0" max="24" step="0.5"
+                         placeholder="0"
+                         data-date="${d.iso}"
+                         oninput="onFooterBreakChange(this)">
+                </td>`
+                )
+                .join("")}
+              <td>-</td>
+            </tr>
+            <tr class="totals-row">
+              <td colspan="5">Total Hours Per Day</td>
+              ${days
+                .map(
+                  () =>
+                    `<td class="day-total"><strong>0 (0 WH + 0 OTH + 0 BH)</strong></td>`
+                )
+                .join("")}
+              <td>-</td>
+            </tr>
+          </tfoot>
+        </table>
+        <button type="button" class="add-row-btn" onclick="addRow('${weekId}')">➕ Add Row</button>
+      </div>`
+    );
+
+    const newTable = document.querySelector(`#${weekId} table`);
+    if (newTable) addDateAttributesToInputs(newTable);
+
+    // --- next Monday ---
+    weekStart = new Date(weekEnd);
+    weekStart.setDate(weekStart.getDate() + 1);
+    weekCount++;
+  }
+
+  // --- monthly summary box ---
+ container.insertAdjacentHTML(
+  "beforeend",
+  `
+  <div id="monthly-summary">
+    <h3>Summary for ${new Date(year, month - 1).toLocaleString("default", {
+      month: "long",
+    })} ${year}</h3>
+
+    <div class="summary-stats">
+      <div class="work">
+        <span>Work Hours:</span> <strong id="summary-work">0</strong>
+      </div>
+      <div class="ot">
+        <span>OT Hours:</span> <strong id="summary-ot">0</strong>
+      </div>
+      <div class="break">
+        <span>Break Hours:</span> <strong id="summary-break">0</strong>
+      </div>
+      <div class="leaves">
+        <span>Total Leaves:</span> <strong id="summary-leaves">0</strong>
+      </div>
+    </div>
+  </div>
+  `
+);
+}
+
+
+/**
+ * Mark public holiday columns and disable inputs for employees who are not allowed to work on PH.
+ * Uses `publicHolidays` (map) and `PH_WORK_ALLOWED` (bool).
+ */
+function highlightPublicHolidays() {
+  try {
+    const tables = document.querySelectorAll("#weeks-container table");
+    if (!tables || tables.length === 0) return;
+
+    tables.forEach(table => {
+      const headers = Array.from(table.querySelectorAll("thead th[data-date]"));
+
+      headers.forEach((th, dayIndex) => {
+        const date = th.dataset.date;
+        if (!publicHolidays || !publicHolidays[date]) return;
+
+        // Header visuals
+        th.classList.add("ph-header");
+        th.setAttribute("data-hol-name", publicHolidays[date]);
+
+        // Disable/mark each body cell for this date column
+        const rows = table.querySelectorAll("tbody tr");
+        rows.forEach(row => {
+          const rowCells = row.querySelectorAll("td");
+          const dayCell = rowCells[5 + dayIndex]; // offset 5 fixed cols
+          if (!dayCell) return;
+
+          if (!PH_WORK_ALLOWED) {
+            dayCell.classList.add("ph-locked");
+
+            // Disable EVERYTHING inside that cell (catch nested inputs/selects)
+            const elements = dayCell.querySelectorAll("*");
+            elements.forEach(el => {
+              const tag = el.tagName;
+              if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || el.hasAttribute("contenteditable")) {
+                try { el.disabled = true; } catch(e) {}
+                if ("value" in el) el.value = "";
+                if (el.hasAttribute("contenteditable")) el.removeAttribute("contenteditable");
+              }
+            });
+          } else {
+            dayCell.classList.add("ph-allowed");
+          }
+        });
+
+        // ---- VERY IMPORTANT: disable the footer break input for this date ----
+        const footerBreak = table.querySelector(`tfoot input.break-footer-input[data-date="${date}"]`);
+        if (footerBreak) {
+          if (!PH_WORK_ALLOWED) {
+            footerBreak.disabled = true;
+            footerBreak.value = "";
+            footerBreak.classList.add("ph-locked");
+          } else {
+            footerBreak.disabled = false;
+            footerBreak.classList.remove("ph-locked");
+          }
+        }
+
+        // also disable any per-row break inputs if you add them later (selector used in code)
+        table.querySelectorAll(`tbody td input.break-input[data-date="${date}"]`).forEach(inp => {
+          if (!PH_WORK_ALLOWED) {
+            inp.disabled = true;
+            inp.value = "";
+            inp.classList.add("ph-locked");
+          } else {
+            inp.disabled = false;
+            inp.classList.remove("ph-locked");
+          }
+        });
+
+      }); // headers.forEach
+      // recalc totals after applying locks (one table at a time)
+      const anyInput = table.querySelector("input[type='number'], select");
+      if (anyInput) calculateTotals(anyInput);
+    }); // tables.forEach
+  } catch (err) {
+    console.error("Error in highlightPublicHolidays:", err);
+  }
+}
+function highlightWeekends() {
+    document.querySelectorAll("#weeks-container table").forEach(table => {
+        const headers = Array.from(table.querySelectorAll("thead th[data-date]"));
+
+        headers.forEach((th, index) => {
+            const date = th.dataset.date;
+            const day = new Date(date).getDay(); // 0 = Sun, 6 = Sat
+
+            if (day === 0 || day === 6) {
+                // Highlight header
+                th.classList.add("weekend-header");
+
+                // Highlight row cells under this column
+                table.querySelectorAll("tbody tr").forEach(row => {
+                    const tds = row.querySelectorAll("td");
+                    const td = tds[5 + index]; // first 5 fixed columns
+
+                    if (td) td.classList.add("weekend-cell");
+                });
+
+                // Highlight totals row
+                const totalsRow = table.querySelector("tfoot tr.totals-row");
+                if (totalsRow) {
+                    const totalCells = totalsRow.querySelectorAll("td");
+                    const weekendTd = totalCells[index+1];
+                    if (weekendTd) weekendTd.classList.add("weekend-total");
+                }
+            }
+        });
+    });
+}
+
+
+    // Produce array of day strings between start and end (inclusive)
+    function getWeekDays(startDate, endDate) {
+  const days = [];
+  const cur = new Date(startDate);
+  while (cur <= endDate) {
+    days.push({
+      label: cur.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit" }),
+        iso: `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}-${String(cur.getDate()).padStart(2, "0")}`
+
+    });
+    cur.setDate(cur.getDate() + 1);
+  }
+  return days;
+}
+function getMissingDates() {
+    const missing = [];
+
+    document.querySelectorAll("#weeks-container table").forEach(table => {
+
+        const headers = Array.from(table.querySelectorAll("thead th[data-date]"));
+
+        headers.forEach(th => {
+            const date = th.dataset.date;
+            const day = new Date(date).getDay(); // 0 = Sun, 6 = Sat
+
+            // 1️⃣ IGNORE WEEKENDS (never count them)
+            if (day === 0 || day === 6) {
+                return;
+            }
+
+            // 2️⃣ IGNORE PUBLIC HOLIDAYS (never count them)
+            if (th.classList.contains("ph-header")) {
+                return;
+            }
+
+            let hasWork = false;
+            let hasLeave = false;
+
+            // 3️⃣ CHECK EACH ROW FOR THIS DATE
+            table.querySelectorAll("tbody tr").forEach(row => {
+                const jobType = row.querySelector("select[name='job_type']")?.value;
+
+                // --- LEAVE CHECK ---
+                const leaveSel = row.querySelector(
+                    `select[name="leave_type"][data-date="${date}"]`
+                );
+                if (leaveSel && leaveSel.value !== "") {
+                    hasLeave = true;
+                }
+
+                // --- WORK HOURS (Only WH) ---
+                if (jobType === "Work") {
+                    const input = row.querySelector(`input[data-date="${date}"]`);
+                    const hours = parseFloat(input?.value || "0");
+
+                    const otFlag = row.querySelector('select[name="ot_flag"]')?.value;
+
+                    // Count only WH as filled (NOT OT)
+                    if (hours > 0 && otFlag === "No") {
+                        hasWork = true;
+                    }
+                }
+            });
+
+            // 4️⃣ FINAL RULE: Missing if NO WH and NO LEAVE
+            if (!hasWork && !hasLeave) {
+                missing.push(date);
+            }
+        });
+    });
+
+    return missing;
+}
+
+
+    /* -------------------------
+       Row creation & rendering
+       ------------------------- */
+function addRow(weekId) {
+  const tbody = document.getElementById(`timesheet-body-${weekId}`);
+  if (!tbody) return;
+  const table = document.querySelector(`#${weekId} table`);
+  const ths = Array.from(table.querySelectorAll("thead th[data-date]"));
+  // Build a days array same shape as generateWeeks produces
+  const days = ths.map(th => ({
+    iso: th.dataset.date,
+    label: th.textContent.trim() || th.dataset.date
+  }));
+
+  tbody.insertAdjacentHTML("beforeend", generateRowHTML(days));
+  // Show break row only when at least one row exists
+const breakRow = table.querySelector("tr.break-edit-row");
+if (breakRow) breakRow.style.display = "";
+  const newRow = tbody.lastElementChild;
+  const firstInp = newRow.querySelector("input[type='number']");
+  if (firstInp) calculateTotals(firstInp);
+  highlightPublicHolidays();
+  highlightWeekends();
+
+  // no need to call addDateAttributesToInputs because inputs already include data-date
+}
+
+function addDateAttributesToInputs(table) {
+  const ths = table.querySelectorAll("thead th[data-date]");
+  table.querySelectorAll("tbody tr").forEach(row => {
+    const inputs = row.querySelectorAll("td input[type='number']");
+    inputs.forEach((inp, idx) => {
+      if (ths[idx]) {
+        inp.dataset.date = ths[idx].dataset.date;
+      }
+    });
+  });
+}
+
+function generateRowHTML(days) {
+  // days is an array of objects: { label: "...", iso: "YYYY-MM-DD" }
+  const dayCount = days.length;
+  const typeOptionsHtml = TASK_TYPES.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join("");
+  const otDisabled = OT_ALLOWED ? "" : "disabled";
+  const typeDisabled = IS_PMO ? "" : "disabled";
+  const taskDisabled = IS_PMO ? "disabled" : "disabled";
+ return `
+    <tr>
+      <td>
+        <select name="job_type" onchange="handleJobChange(this)">
+          <option value="Work">Work</option>
+          <option value="Leave" ${LEAVES_LOCKED ? "disabled" : ""}>Leave</option>
+        </select>
+      </td>
+
+      <td>
+        <select name="type_default" ${typeDisabled} onchange="populateTasks(this)">
+          <option value="">Select Type</option>
+          ${typeOptionsHtml}
+        </select>
+      </td>
+
+      <td>
+        <select name="task_select" ${taskDisabled} onchange="updateDescription(this)">
+          <option value="">Select Task</option>
+        </select>
+      </td>
+
+      <td><span class="desc">No description available</span></td>
+
+      <td>
+        <select name="ot_flag" ${otDisabled} onchange="calculateTotals(this)">
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+      </td>
+
+      ${days.map((d, i) => `
+        <td>
+          <input class="inline-input"
+                 type="number"
+                 min="0" max="24" step="0.5"
+                 placeholder="0"
+                 data-date="${d.iso}"
+                 data-day-index="${i}"
+                 oninput="calculateTotals(this)">
+        </td>`).join("")}
+
+      <td class="total-cell"><strong>0</strong></td>
+
+      <td>
+        <button type="button" onclick="deleteRow(this)" style="background-color:#e74c3c;color:white;border:none;padding:6px 8px;border-radius:4px;cursor:pointer;">🗑️</button>
+      </td>
+    </tr>`;
+
+}
+
+    /* -------------------------
+       Type -> Task & Description
+       ------------------------- */
+    function populateTasks(typeSelect) {
+      const row = typeSelect.closest("tr");
+      const taskSelect = row.querySelector("select[name='task_select']");
+      const descSpan = row.querySelector(".desc");
+      const selectedTypeId = parseInt(typeSelect.value);
+
+      // reset
+      taskSelect.innerHTML = '<option value="">Select Task</option>';
+      descSpan.textContent = "No description available";
+      taskSelect.disabled = true;
+      if (!selectedTypeId) return;
+
+      // filter tasks from TASKS (matching key 'type_id' or 'task_type_id')
+      const filtered = TASKS.filter(t => parseInt(t.type_id || t.task_type_id) === selectedTypeId);
+      filtered.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name;
+        opt.dataset.desc = t.description || "";
+        taskSelect.appendChild(opt);
+      });
+      taskSelect.disabled = false;
+    }
+
+    function detectMedicalLeave() {
+    let hasMedicalLeave = false;
+
+    document.querySelectorAll("select[name='leave_type']").forEach(sel => {
+        const text = sel.selectedOptions[0]?.textContent?.toLowerCase() || "";
+        if (text.includes("medical")) {
+            hasMedicalLeave = true;
+        }
+    });
+
+    const box = document.getElementById("medical-upload-box");
+
+    if (hasMedicalLeave) {
+        box.style.display = "block";
+        loadUploadedMedicalFiles();
+    } else {
+        box.style.display = "none";
+    }
+}
+
+    async function uploadMedicalFiles() {
+                if (READ_ONLY) {
+            alert("This timesheet is view-only. Upload disabled.");
+            return;}
+    const files = document.getElementById("medical-file-input").files;
+    if (!files.length) return;
+    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+    const maxSize = 1 * 1024 * 1024; // 1 MB
+
+    // 🔍 Validate each file
+    for (const file of files) {
+        if (!allowedTypes.includes(file.type)) {
+            Swal.fire({
+                icon: "error",
+                title: "Invalid File Type",
+                text: `${file.name} is not allowed. Upload only JPG, PNG, or PDF.`,
+            });
+            return;
+        }
+
+        if (file.size > maxSize) {
+            Swal.fire({
+                icon: "error",
+                title: "File Too Large",
+                text: `${file.name} exceeds 1 MB file size limit.`,
+            });
+            return;
+        }
+    }
+    const month = document.getElementById("hidden-month-input").value;
+
+    for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("month", month);
+
+        await fetch("/upload_medical_certificate/", {
+            method: "POST",
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            body: formData
+        });
+    }
+
+    document.getElementById("medical-file-input").value = "";
+    loadUploadedMedicalFiles();
+}
+
+    async function loadUploadedMedicalFiles() {
+    const month = document.getElementById("hidden-month-input").value;
+    const empId = document.getElementById("hidden-employee-id").value;
+
+
+    const res = await fetch(`/list_medical_certificates/?month=${month}&employee_id=${empId}`);
+
+    const files = await res.json();
+
+    const list = document.getElementById("uploaded-files-list");
+    list.innerHTML = "";
+
+    files.forEach(f => {
+        list.innerHTML += `
+            <div style="margin-bottom:6px;">
+                <a href="${f.url}" target="_blank">📎 ${f.name}</a>
+               ${READ_ONLY ? "" : ` <button onclick="deleteMedicalFile(${f.id})"
+                        style="color:red;margin-left:8px;border:none;background:none;cursor:pointer;">❌</button>`}
+            </div>
+        `;
+    });
+}
+
+async function deleteMedicalFile(id) {
+    await fetch("/delete_medical_certificate/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: "id=" + id
+    });
+
+    loadUploadedMedicalFiles();
+}
+
+
+    function updateDescription(selectElem) {
+      const desc = selectElem.selectedOptions[0]?.dataset?.desc || "No description available";
+      const descTd = selectElem.closest("td");
+      if (descTd) descTd.parentElement.querySelector(".desc").textContent = desc;
+    }
+
+    /* -------------------------
+       Work / Leave toggle logic
+       ------------------------- */
+// Call this when a holiday-type select changes value
+function handleHolidaySelection(selectElem) {
+  const td = selectElem.closest("td");
+  const row = selectElem.closest("tr");
+
+  // mark/unmark the individual cell
+  if (selectElem.value === "Public Holiday") {
+    td.classList.add("holiday-cell-selected");
+  } else {
+    td.classList.remove("holiday-cell-selected");
+  }
+
+  // If any cell in the row is marked Public Holiday, mark the whole row as holiday-row.
+  // This mirrors how you treat leave rows visually.
+  const anyHoliday = Array.from(row.querySelectorAll("select[name='holiday_type']"))
+    .some(s => s.value === "Public Holiday");
+
+  if (anyHoliday) row.classList.add("holiday-row");
+  else row.classList.remove("holiday-row");
+
+  // Recalculate totals / summary after change
+  calculateTotals(selectElem);
+}
+
+function handleJobChange(selectElem) {
+  const row = selectElem.closest("tr");
+  const jobValue = selectElem.value;
+  const isLeave = jobValue === "Leave";
+  const isHoliday = jobValue === "Public Holiday";
+  const typeSelect = row.querySelector("select[name='type_default']");
+  const taskSelect = row.querySelector("select[name='task_select']");
+  const otSelect = row.querySelector("select[name='ot_flag']");
+
+  const tds = Array.from(row.querySelectorAll("td"));
+  const table = selectElem.closest("table");
+  const headers = Array.from(table.querySelectorAll("thead th[data-date]"));
+  const dayCount = headers.length;
+
+  const startIdx = 5; // fixed non-day columns
+  const deleteBtn = row.querySelector("button[onclick*='deleteRow']");
+
+  // Reset styles
+  row.classList.remove("leave-row", "holiday-row");
+
+  if (isLeave || isHoliday) {
+    // Disable work-related controls
+    typeSelect.disabled = true;
+    taskSelect.disabled = true;
+    otSelect.disabled = true;
+
+    if (isLeave) row.classList.add("leave-row");
+    if (isHoliday) row.classList.add("holiday-row");
+    if (LEAVES_LOCKED && isLeave) {
+      selectElem.disabled = true;
+      if (deleteBtn) {
+        deleteBtn.disabled = true;
+        deleteBtn.style.opacity = 0.5;
+        deleteBtn.style.cursor = "not-allowed";
+      }
+    }
+
+    // Replace daily cells
+    for (let i = 0; i < dayCount; ++i) {
+      const td = tds[startIdx + i];
+      const date = headers[i].dataset.date;
+
+      if (isLeave) {
+        // LEAVE DROPDOWN with data-date
+        td.innerHTML = `
+          <select name="leave_type"
+                  data-date="${date}"
+                  ${LEAVES_LOCKED ? "disabled title='Leave is managed in Apply Portal'" : ""}
+                  onchange="handleLeaveSelection(this)">
+              <option value="">Select Leave</option>
+              ${LEAVE_TYPES.map(l =>
+                  `<option value="${l.id}">${l.name}</option>`
+              ).join("")}
+          </select>
+        `;
+      } else if (isHoliday) {
+        // PUBLIC HOLIDAY DROPDOWN
+        td.innerHTML = `
+          <select name="holiday_type"
+                  data-date="${date}"
+                  onchange="handleHolidaySelection(this)">
+              <option value="">-- Select --</option>
+              <option value="Public Holiday">Public Holiday</option>
+          </select>
+        `;
+      }
+    }
+
+    // Clear total cell
+    const totalCell = row.querySelector(".total-cell strong");
+    if (totalCell) totalCell.textContent = "0";
+
+  } else {
+    // RESTORE to Work Mode
+    typeSelect.disabled = false;
+    taskSelect.disabled = false;
+    otSelect.disabled = false;
+    if (!READ_ONLY) selectElem.disabled = false;
+    if (deleteBtn) {
+      deleteBtn.disabled = false;
+      deleteBtn.style.opacity = "";
+      deleteBtn.style.cursor = "";
+    }
+
+    for (let i = 0; i < dayCount; ++i) {
+      const td = tds[startIdx + i];
+      const date = headers[i].dataset.date;
+
+      td.innerHTML = `
+        <input type="number"
+               min="0" max="24" step="0.5"
+               placeholder="0"
+               data-date="${date}"
+               oninput="calculateTotals(this)">
+      `;
+    }
+  }
+
+  calculateTotals(selectElem);
+}
+
+
+
+    function handleLeaveSelection(selectElem) {
+      const td = selectElem.closest("td");
+      if (selectElem.value) td.classList.add('leave-cell-selected');
+      else td.classList.remove('leave-cell-selected');
+      detectMedicalLeave(); // NEW LINE
+      calculateTotals(selectElem);
+    }
+
+    /* -------------------------
+       Footer Break propagation
+       - When a footer break input changes, propagate to every row's break input for that day.
+       - Then recalc totals.
+       ------------------------- */
+    function onFooterBreakChange(footerInput, dayIndex) {
+      const table = footerInput.closest("table");
+      const tbody = table.querySelector("tbody");
+      const dayCount = parseInt(table.getAttribute('data-day-count'), 10);
+      const rows = Array.from(tbody.querySelectorAll("tr"));
+      rows.forEach(r => {
+        if (r.classList.contains('leave-row')) {
+          // for leave rows, set break input in that column too (so totals pick it up if needed)
+          const breakInputs = r.querySelectorAll("td input.break-input");
+          const breakInp = breakInputs[dayIndex];
+          if (breakInp) breakInp.value = footerInput.value;
+        } else {
+          const breakInputs = r.querySelectorAll("td input.break-input");
+          const breakInp = breakInputs[dayIndex];
+          if (breakInp) breakInp.value = footerInput.value;
+        }
+      });
+      // recalc using footerInput as trigger
+      calculateTotals(footerInput);
+    }
+
+    /* Called when a break input in a row is edited by user */
+    function onRowBreakChange(rowBreakInput) {
+      // We don't override footer; user can still change footer later to propagate
+      calculateTotals(rowBreakInput);
+    }
+
+function showWeeklyTotals(table, whArr, othArr, bhArr) {
+  // Calculate the combined total for all WH, OTH, and BH
+  const totalHours = whArr.reduce((a, b) => a + b, 0) +
+                     othArr.reduce((a, b) => a + b, 0);
+
+  const totalsRow = table.querySelector("tfoot tr.totals-row");
+  if (!totalsRow) return;
+
+  // Target the rightmost (TOTAL HOURS) cell
+  const lastCell = totalsRow.querySelector("td:last-child");
+  if (lastCell) {
+    lastCell.innerHTML = `
+      <div style="
+        text-align:center;
+        font-weight:700;
+        color:#2563eb;
+        font-size:1rem;
+      ">
+        ${totalHours.toFixed(1)}
+      </div>
+    `;
+  }
+}
+
+    /* -------------------------
+       Totals calculation
+       ------------------------- */
+
+    function calculateTotals(triggerElem) {
+  const table = triggerElem.closest("table");
+  if (!table) return;
+  const tbody = table.querySelector("tbody");
+  const dayCount = parseInt(table.getAttribute("data-day-count"), 10);
+
+  // --- Row Totals ---
+  tbody.querySelectorAll("tr").forEach(row => {
+    let workSum = 0;
+    row.querySelectorAll("td input[type='number']").forEach(inp => {
+      workSum += parseFloat(inp.value) || 0;
+    });
+    const totalCell = row.querySelector(".total-cell strong");
+    if (totalCell) totalCell.textContent = workSum.toFixed(1);
+  });
+    const whArr = Array(dayCount).fill(0);
+    const othArr = Array(dayCount).fill(0);
+    const bhArr = Array(dayCount).fill(0);
+  // --- Get Break Hours from Footer ---
+  const breakRow = table.querySelector("tfoot tr.break-edit-row");
+  const footerBreakInputs = breakRow ? Array.from(breakRow.querySelectorAll("input.break-footer-input")) : [];
+
+  // --- Day Totals ---
+  const totalsRow = table.querySelector("tfoot tr.totals-row");
+  if (totalsRow) {
+      tbody.querySelectorAll("tr").forEach(r => {
+      if (r.classList.contains("leave-row")) return;
+
+      const otSelect = r.querySelector("select[name='ot_flag']");
+      const isOT = otSelect && otSelect.value === "Yes";
+
+      const workInputs = Array.from(r.querySelectorAll("td input[type='number']"));
+      for (let d = 0; d < dayCount; d++) {
+        const wval = parseFloat(workInputs[d]?.value) || 0;
+        if (isOT) othArr[d] += wval;
+        else whArr[d] += wval;
+      }
+    });
+
+    // Add footer break hours to BH totals
+    for (let d = 0; d < dayCount; d++) {
+      bhArr[d] = parseFloat(footerBreakInputs[d]?.value) || 0;
+    }
+
+    // Update Total Hours Per Day cells
+    const dayTotalTds = Array.from(totalsRow.querySelectorAll("td.day-total"));
+    for (let d = 0; d < dayCount; d++) {
+      if (!dayTotalTds[d]) continue;
+      const total = (whArr[d] + othArr[d]).toFixed(1);
+      const wh = whArr[d].toFixed(1);
+      const oth = othArr[d].toFixed(1);
+      const bh = bhArr[d].toFixed(1);
+
+     dayTotalTds[d].querySelector("strong").innerHTML = `
+    <div class="total-line">
+    <span class="total-pill wh" title="Work Hours">${wh} WH</span>
+    <span class="total-pill oth" title="Overtime Hours">${oth} OTH</span>
+    <span class="total-pill bh" title="Break Hours">${bh} BH</span>
+  </div>
+  <div class="total-overall">Total: ${total}</div>
+`;
+
+    }
+  }
+  showWeeklyTotals(table, whArr, othArr);
+
+  updateMonthlySummary();
+}
+
+
+    /* -------------------------
+       Monthly summary calculation
+       ------------------------- */
+
+    function updateMonthlySummary() {
+  let workHours = 0, otHours = 0, breakHours = 0, totalLeaves = 0;
+
+  // Iterate through all week tables
+  document.querySelectorAll("table").forEach(table => {
+    const tbody = table.querySelector("tbody");
+    const dayCount = parseInt(table.getAttribute("data-day-count"), 10);
+
+    // --- Work + OT Hours ---
+    tbody.querySelectorAll("tr").forEach(row => {
+      if (row.classList.contains("leave-row")) {
+        // Count leaves
+        row.querySelectorAll("select[name='leave_type']").forEach(sel => {
+          if (sel.value) totalLeaves++;
+        });
+        return;
+      }
+
+      const otSelect = row.querySelector("select[name='ot_flag']");
+      const isOT = otSelect && otSelect.value === "Yes";
+
+      const workInputs = Array.from(row.querySelectorAll("td input[type='number']"));
+      for (let i = 0; i < workInputs.length; i++) {
+        const val = parseFloat(workInputs[i].value) || 0;
+        if (isOT) otHours += val;
+        else workHours += val;
+      }
+    });
+
+    // --- Break Hours (from footer row) ---
+    const breakRow = table.querySelector("tfoot tr.break-edit-row");
+    if (breakRow) {
+      const footerBreakInputs = breakRow.querySelectorAll("input.break-footer-input");
+      footerBreakInputs.forEach(inp => {
+        breakHours += parseFloat(inp.value) || 0;
+      });
+    }
+  });
+
+  // --- Update summary display ---
+  document.getElementById("summary-work").textContent = `${workHours.toFixed(1)}`;
+  document.getElementById("summary-ot").textContent = `${otHours.toFixed(1)}`;
+  document.getElementById("summary-break").textContent = `${breakHours.toFixed(1)}`;
+  document.getElementById("summary-leaves").textContent = `${totalLeaves}`;
+}
+
+    /* -------------------------
+       Delete row & recalc
+       ------------------------- */
+    function deleteRow(button) {
+      const table = button.closest("table");
+      const row = button.closest("tr");
+      row.remove();
+      // recalc using first existing input in table or table itself
+      const firstInput = table.querySelector("input[type='number']") || table.querySelector("select");
+      if (firstInput) calculateTotals(firstInput);
+      else updateMonthlySummary();
+      const tbody = table.querySelector("tbody");
+const breakRow = table.querySelector("tr.break-edit-row");
+
+if (tbody.children.length === 0 && breakRow) {
+    breakRow.style.display = "none";
+}
+
+    }
+
+
+    /* -------------------------
+       Init
+       ------------------------- */
+    document.addEventListener("DOMContentLoaded", () => {
+  // 🔹 Use preloaded month if available
+  let monthToLoad = CURRENT_MONTH || `${selectedYear}-${String(selectedMonth).padStart(2,"0")}`;
+  document.getElementById("hidden-month-input").value = monthToLoad;
+
+  // Parse and set selectedYear / selectedMonth for correct header display
+  const [y, m] = monthToLoad.split("-").map(Number);
+  selectedYear = y;
+  selectedMonth = m;
+
+  // Build UI
+  updateMonthDisplay();
+
+  // 🔹 If there are saved entries, fill them automatically
+
+  if (PRELOADED_DATA && PRELOADED_DATA.length > 0) {
+  console.log("📦 Preloaded timesheet data found:", PRELOADED_DATA);
+
+
+  function applyReadOnlyMode() {
+  if (!READ_ONLY) return;
+
+    const fileInput = document.getElementById("medical-file-input");
+  if (fileInput) {
+      fileInput.disabled = true;
+  }
+
+  console.log("🔒 Read-only mode enabled");
+
+  // 1) Disable all inputs/selects inside the weeks container (so months navigation/buttons stay active)
+  document.querySelectorAll('#weeks-container input, #weeks-container select, #weeks-container textarea').forEach(el => {
+    el.disabled = true;
+  });
+
+  // 2) Hide per-row delete buttons
+  document.querySelectorAll('#weeks-container button').forEach(btn => {
+    // detect delete buttons by onclick content or emoji (adjust if your markup changes)
+    if (btn.onclick || btn.getAttribute('onclick')?.includes('deleteRow')) {
+      btn.style.display = 'none';
+    }
+  });
+
+  // 3) Disable Add Row buttons
+  document.querySelectorAll('.add-row-btn').forEach(btn => btn.disabled = true);
+
+  // 4) Disable Save/Submit button and change text
+  document.querySelectorAll('.save-btn').forEach(btn => {
+  btn.disabled = true;
+  btn.textContent = 'View Only';
+  btn.title = 'This timesheet is read-only';
+  btn.style.opacity = 0.6;
+  btn.style.cursor = 'not-allowed';
+});
+
+  // 5) Prevent submitTimesheet being triggered programmatically by other code
+  //    (defensive — in case some code calls it)
+  const originalSubmit = window.submitTimesheet;
+  window.submitTimesheet = function() {
+    alert('This timesheet is view-only. You cannot save or submit it.');
+    return Promise.resolve({ status: 'view-only' });
+  };
+
+  // 6) Make table cells still selectable (user can copy) but not focusable
+  document.querySelectorAll('#weeks-container td').forEach(td => td.tabIndex = -1);
+}
+
+// call after UI built:
+document.addEventListener("DOMContentLoaded", () => {
+  // your existing init code...
+  // ...
+
+  // After trying to fill timesheet, apply readonly (so DOM elements exist)
+  setTimeout(applyReadOnlyMode, 350);
+});
+
+  function tryFillTimesheet(attempts = 0) {
+    const tableCount = document.querySelectorAll("table").length;
+    if (tableCount === 0 && attempts < 10) {
+      console.log("⏳ Tables not ready yet, retrying fill...");
+      return setTimeout(() => tryFillTimesheet(attempts + 1), 300);
+    }
+    console.log(`🟢 Tables ready (${tableCount}), filling timesheet now.`);
+    fillTimesheet(PRELOADED_DATA);
+  }
+
+  tryFillTimesheet();
+}
+
+
+  setTimeout(applyReadOnlyMode, 300);
+});
+
+function fillTimesheet(entries) {
+  console.log("🔍 fillTimesheet called with", entries.length, "entries");
+  const weekTables = Array.from(document.querySelectorAll("table"));
+  console.log("📋 Total tables in DOM:", weekTables.length);
+
+  // 🧹 Clear placeholder rows before filling
+  weekTables.forEach(tbl => {
+    const tbody = tbl.querySelector("tbody");
+    if (tbody) tbody.innerHTML = "";
+  });
+
+  function attachDatesToRow(table, row) {
+    const ths = Array.from(table.querySelectorAll("thead th[data-date]"));
+    const inputs = Array.from(row.querySelectorAll("td input[type='number'], td select[name='leave_type']"));
+    // Map each visible input/select to header by index, but we will use explicit data-date when filling
+    inputs.forEach((inp, idx) => {
+      if (ths[idx]) inp.dataset.date = ths[idx].dataset.date;
+    });
+  }
+
+  function ensureTaskOption(taskSel, taskId) {
+    if (!taskSel || !taskId) return;
+    if (taskSel.querySelector(`option[value="${taskId}"]`)) return;
+    const found = TASKS.find(t => String(t.id) === String(taskId));
+    if (!found) return;
+    const opt = document.createElement("option");
+    opt.value = found.id;
+    opt.textContent = found.name;
+    if (found.description) opt.dataset.desc = found.description;
+    taskSel.appendChild(opt);
+  }
+
+  // Helper to build leave dropdown HTML for a cell (uses LEAVE_TYPES injected by Django)
+  function buildLeaveHTML(selectedId = "") {
+    // If LEAVE_TYPES is a JSON string in template then it should be an array; otherwise adjust accordingly
+    const lockedAttr = LEAVES_LOCKED ? "disabled title='Leave is managed in Apply Portal'" : "";
+    let html = `<select name="leave_type" onchange="handleLeaveSelection(this)" ${lockedAttr}>
+                  <option value="">-- Select Leave --</option>`;
+    (typeof LEAVE_TYPES !== "undefined" ? LEAVE_TYPES : []).forEach(lt => {
+      const sel = String(lt.id) === String(selectedId) ? "selected" : "";
+      html += `<option value="${lt.id}" ${sel}>${escapeHtml(lt.name)}</option>`;
+    });
+    html += `</select>`;
+    return html;
+  }
+
+  // 🧠 Fill per table (week) only
+  weekTables.forEach((matchedTable, tIdx) => {
+    const thDates = Array.from(matchedTable.querySelectorAll("thead th[data-date]")).map(th => th.dataset.date);
+    const tableEntries = entries.filter(e => thDates.includes(e.date));
+
+    if (tableEntries.length === 0) {
+      console.log(`📭 No entries for week ${tIdx + 1}`);
+      return;
+    }
+
+    // Group only within this week’s table
+    const grouped = {};
+    tableEntries.forEach(e => {
+        const key = `${e.job_type || 'Work'}|${e.task_type_id || ''}|${e.task_id || ''}|${e.is_ot ? 'Yes' : 'No'}`;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(e);
+    });
+
+    Object.values(grouped).forEach((group, gIdx) => {
+      const first = group[0];
+      const {
+        job_type,
+        task_type_id,
+        task_id,
+        leave_type_id,
+        description
+      } = first;
+
+      const weekId = matchedTable.closest(".week-block").id;
+      addRow(weekId);
+
+      const tbody = matchedTable.querySelector("tbody");
+      const thisRow = tbody.lastElementChild;
+
+      // IMPORTANT: when handleJobChange runs it replaces innerHTML — attachDates AFTER rebuild
+      const jobSelect = thisRow.querySelector("select[name='job_type']");
+      if (jobSelect) {
+        jobSelect.value = job_type;
+        handleJobChange(jobSelect);           // switches row to Leave layout if needed
+        if (LEAVES_LOCKED && (job_type || "") === "Leave") {
+          jobSelect.disabled = true;
+        }
+      }
+
+      // Now attach dates (because inputs/selects may have been recreated)
+      attachDatesToRow(matchedTable, thisRow);
+
+      // Work row — fill type/task/desc
+      if ((job_type || "").toLowerCase() === "work") {
+        const typeSel = thisRow.querySelector("select[name='type_default']");
+        const taskSel = thisRow.querySelector("select[name='task_select']");
+        const descSpan = thisRow.querySelector(".desc");
+
+        if (typeSel) {
+          typeSel.value = task_type_id || "";
+          populateTasks(typeSel);
+        }
+
+        ensureTaskOption(taskSel, task_id);
+        if (taskSel) {
+          taskSel.value = task_id || "";
+          updateDescription(taskSel);
+        }
+        if (descSpan && description) descSpan.textContent = description;
+
+          if (!IS_PMO) {
+      if (typeSel) typeSel.disabled = true;
+      if (taskSel) taskSel.disabled = true;
+  }
+
+        // Fill each entry into the matching date cell
+        group.forEach(entry => {
+          const { date, work_hours, ot_hours, break_hours } = entry;
+          const inp = thisRow.querySelector(`input[data-date='${date}']`);
+          if (inp) {
+            inp.value = work_hours || ot_hours || 0;
+            // OT flag
+            if (parseFloat(ot_hours) > 0) {
+              const otSelect = thisRow.querySelector("select[name='ot_flag']");
+              if (otSelect) otSelect.value = "Yes";
+            }
+            calculateTotals(inp);
+          }
+          // break footer
+          const breakFooter = matchedTable.querySelector(`tfoot input.break-footer-input[data-date='${date}']`);
+          if (breakFooter && (break_hours || break_hours === 0)) breakFooter.value = break_hours;
+        });
+      }
+ if (!OT_ALLOWED) {
+            const otSelect = thisRow.querySelector("select[name='ot_flag']");
+            if (otSelect) {
+              otSelect.disabled = true;
+              otSelect.value = "No"; // force off
+            }}
+      // Leave row — fill each leave date cell properly
+     if ((job_type || "") === "Leave") {
+    group.forEach(entry => {
+        const { date, leave_type_id } = entry;
+
+        let targetTd =
+            thisRow.querySelector(`td[data-date='${date}']`) ||
+            thisRow.querySelector(`td select[data-date='${date}']`)?.closest("td");
+
+        if (!targetTd) {
+            const headers = Array.from(matchedTable.querySelectorAll("thead th[data-date]"));
+            const colIndex = headers.findIndex(h => h.dataset.date === date);
+            if (colIndex >= 0) {
+                const tds = Array.from(thisRow.querySelectorAll("td"));
+                targetTd = tds[5 + colIndex];
+            }
+        }
+
+        if (!targetTd) return;
+
+        targetTd.innerHTML = `
+            <select name="leave_type"
+                    data-date="${date}"
+                    ${LEAVES_LOCKED ? "disabled title='Leave is managed in Apply Portal'" : ""}
+                    onchange="handleLeaveSelection(this)">
+                <option value="">Select Leave</option>
+                ${LEAVE_TYPES.map(l =>
+                    `<option value="${l.id}" ${l.id == leave_type_id ? "selected" : ""}>${l.name}</option>`
+                ).join("")}
+            </select>
+        `;
+
+        handleLeaveSelection(targetTd.querySelector("select"));
+    });
+}
+
+      // Public Holiday case (if you use holiday_type selects)
+        // Public Holiday row — fill each holiday date cell properly
+if ((job_type || "") === "Public Holiday") {
+  group.forEach(entry => {
+    const { date } = entry;
+
+    // Try to find the target cell for this date
+    let targetTd = thisRow.querySelector(`td[data-date='${date}']`);
+    if (!targetTd) {
+      const inpCell = thisRow.querySelector(`td input[data-date='${date}']`);
+      if (inpCell) targetTd = inpCell.closest("td");
+    }
+
+    // Fallback via column index (in case above fails)
+    if (!targetTd) {
+    const headers = Array.from(matchedTable.querySelectorAll("thead th[data-date]"));
+      const colIndex = headers.findIndex(h => h.dataset.date === date);
+      if (colIndex >= 0) {
+        const tds = Array.from(thisRow.querySelectorAll("td"));
+        targetTd = tds[5 + colIndex]; // adjust offset if first 5 are info cols
+      }
+    }
+
+    if (!targetTd) {
+      console.warn("⚠️ Could not find target cell for Public Holiday date", date);
+      return;
+    }
+
+    // Fill the holiday dropdown
+    targetTd.innerHTML = `
+      <select name="holiday_type" onchange="handleHolidaySelection(this)">
+        <option value="">-- Select --</option>
+        <option value="Public Holiday" selected>Public Holiday</option>
+      </select>
+    `;
+
+    const holSel = targetTd.querySelector("select[name='holiday_type']");
+    handleHolidaySelection(holSel); // apply visual style if needed
+  });
+}
+
+
+      console.log(`✅ Row ${gIdx + 1}: ${group.length} entries filled for Week ${tIdx + 1}`);
+    });
+  });
+
+  // 🧾 Refresh totals and summary
+    setTimeout(() => {
+    const firstInput = document.querySelector("table input[type='number']");
+    if (firstInput) calculateTotals(firstInput);
+
+    updateMonthlySummary();
+    highlightPublicHolidays();
+    highlightWeekends();
+
+}, 300);
+
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const isReviewer = {{ user.is_staff|yesno:"true,false" }} ||
+                       {{ user.manager_profile|yesno:"true,false" }};
+
+    if (READ_ONLY && isReviewer) {
+        lockMonthSelector();
+    }
+});
+
+function lockMonthSelector() {
+    // Disable month arrows
+    const buttons = document.querySelectorAll(".month-picker-container button");
+    buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+    });
+
+    // Add a visual lock shield
+    const monthBox = document.querySelector(".month-picker-container");
+    if (monthBox) {
+        monthBox.style.pointerEvents = "none";    // Prevent interaction
+        monthBox.style.opacity = "0.6";           // Make it visually locked
+    }
+}
+
+</script>
+</head>
+
+<div id="page-scale">
+<div id="timesheet-scale-wrapper">
+    {% if read_only and user.is_staff or read_only and user.manager_profile %}
+<div id="reviewer-banner">
+    🔒 Seeing as Reviewer — This Timesheet is in Read-Only Mode
+</div>
+{% endif %}
+
+<div style="
+    max-width: 1100px;
+    padding: 15px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+">
+    <div>
+        <div style="font-size: 18px; font-weight: 700; color:#f30000;">
+            {{ current_employee.full_name }}
+        </div>
+        <div style="margin-top:4px; font-size:14px; color:#475569;">
+
+            Timesheet Status:
+            {% if submission_status_text == "SUBMITTED" %}
+                <span style="color:#2563eb; font-weight:600;">Submitted - (Employee Can Still Edit) </span>
+            {% elif submission_status_text == "APPROVED" %}
+                <span style="color:#16a34a; font-weight:600;">Approved - (Read only Mode)</span>
+            {% elif submission_status_text == "REJECTED" %}
+                <span style="color:#dc2626; font-weight:600;">Rejected - (Employee can Edit to Resubmit) </span>
+            {% else %}
+                <span style="color:#6b7280; font-weight:600;">Draft</span>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<div style="display:flex; align-items:center; justify-content:center; margin-top:30px; position:relative;">
+
+    <!-- LEFT: Back to Home -->
+    {% if not user.is_staff and not user.manager_profile %}
+    <a href="{% url 'employee_home' %}"
+       class="back-link"
+       style="position:absolute; left:0;">
+        ← Back to Home
+    </a>
+    {% endif %}
+
+    <!-- CENTER: Title -->
+    <h2 style="color:#111111; margin:0; font-size:24px;">Submit Timesheet</h2>
+
+</div>
+
+
+<div class="form-container" style="position:relative;">
+    <div class="month-picker-container">
+        <button type="button" onclick="changeMonth(-1)">◀</button>
+        <span id="month-display"></span>
+        <button type="button" onclick="changeMonth(1)">▶</button>
+    </div>
+    <input type="hidden" id="hidden-month-input" name="month" value="">
+    <input type="hidden" id="hidden-employee-id" value="{{ current_employee.id }}">
+
+</style>
+
+</div>
+
+  <!-- Main form -->
+  <form method="post">
+    {% csrf_token %}
+    <div id="weeks-container"></div>
+      <div style="
+    max-width: 900px;
+    margin: 30px auto 20px;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+">
+    <label for="remarks" style="
+        font-size: 16px;
+        font-weight: 600;
+        color:#1e3a8a;
+    ">
+        Timesheet Remarks for Month (Optional)
+    </label>
+
+    <textarea id="remark-input"
+    name="remarks"
+    maxlength="300"
+    rows="3"
+    style="
+        width:100%;
+        margin-top:10px;
+        padding:14px;
+        border-radius:10px;
+        border:1px solid #cbd5e1;
+        background:#f8fafc;
+        font-size:14px;
+        outline:none;
+        transition:0.25s;
+        font-family:'Inter', sans-serif;
+    "
+    placeholder="Add any additional clarifications or comments here..."
+    {% if read_only == "true" %}readonly{% endif %}
+>{{ existing_remark |default_if_none:"" }}</textarea>
+
+
+</div>
+    <!-- Save button -->
+    <div class="form-container" style="margin-bottom:30px;">
+        <button type="button" class="save-btn" onclick="submitTimesheet(false)">💾 Save Draft</button>
+        <button type="button" class="save-btn" onclick="submitTimesheet(true)">🚀 Submit</button>
+
+    </div>
+
+  </form>
+</div>
+</div>
+
+<div id="medical-upload-box"
+     style="
+        display:none;
+        position:fixed;
+        top:140px;
+        right:25px;
+        width:300px;                 /* WIDER BOX */
+        max-height:260px;            /* fixed height */
+        background:#ffffff;
+        padding:12px 14px;
+        border-radius:10px;
+        border:1px solid #e5e7eb;
+        box-shadow:0 4px 12px rgba(0,0,0,0.15);
+        z-index:9999;
+        font-size:13px;
+     ">
+
+    <strong style="font-size:13px; color:#f30000;">📄 Medical Leave – Upload</strong>
+
+    <p style="
+        font-size:10px;
+        color:#475569;
+        margin-top:4px;
+        margin-bottom:6px;
+        line-height:1.1;
+    ">
+        Allowed: PDF, PNG, JPEG - Max 1 MB
+    </p>
+
+    <input type="file" id="medical-file-input" multiple
+           style="margin-top:4px; width:100%; font-size:12px;">
+
+    <button onclick="uploadMedicalFiles()"
+            style="
+                margin-top:8px;
+                background:#f30000;
+                color:#fff;
+                border:none;
+                padding:6px 8px;
+                border-radius:6px;
+                font-size:12px;
+                width:100%;
+                cursor:pointer;
+            ">
+        Upload
+    </button>
+
+    <!-- FILE LIST - height controlled, no horizontal scroll -->
+    <div id="uploaded-files-list"
+         style="
+            margin-top:10px;
+            max-height:50px;       /* more visible area */
+            overflow-y:auto;
+            overflow-x:hidden;      /* NO HORIZONTAL SCROLL */
+            font-size:11px;
+            padding-right:4px;
+         ">
+    </div>
+
+    <div style="font-size:10px; color:#64748b; margin-top:4px; text-align:center;">
+        Scroll to view uploaded files ↓
+    </div>
+</div>
+
+<style>
+/* ONE FILE PER LINE - with delete button on right */
+#uploaded-files-list div {
+    display: flex;
+    justify-content: space-between;   /* filename left + cross right */
+    align-items: center;
+    background: #f8fafc;
+    padding: 6px 8px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;        /* WRAP filename */
+    word-break: break-word;
+    white-space: normal;
+}
+
+/* filename styling */
+#uploaded-files-list span {
+    flex: 1;                          /* take full width */
+    font-size: 11px;
+    margin-right: 6px;
+    line-height: 1.2;
+    color: #0f172a;
+}
+
+/* delete button */
+#uploaded-files-list button {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 2px 6px;
+    font-size: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;                   /* prevent shrinking the cross */
+}
+</style>
+
+<!-- INLINE CSS THAT CONTROLS FILE DISPLAY -->
+<style>
+/* Each file item */
+#uploaded-files-list div {
+    display: block;
+    background: #f8fafc;
+    padding: 4px 6px;
+    margin-bottom: 4px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+
+    /* Prevent horizontal scroll fully */
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+}
+
+/* File name text */
+#uploaded-files-list span {
+    display: block;          /* Wrap naturally */
+    color: #0f172a;
+    margin-bottom: 2px;
+    line-height: 1.2;
+}
+
+/* Remove button below filename */
+#uploaded-files-list button {
+    display: inline-block;
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 2px 6px;
+    font-size: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 2px;
+}
+</style>
+{% endblock %}

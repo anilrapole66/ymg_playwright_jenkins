@@ -1,0 +1,301 @@
+{% extends 'employees/dashboard.html' %}
+
+{% block title %}Employee Detail{% endblock %}
+
+{% block dashboard_content %}
+
+<style>
+
+    /* ===== Header ===== */
+    .header-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .header-title {
+        color: #111;
+        font-size: 1.6rem;
+        font-weight: 700;
+        font-family: 'Poppins', sans-serif;
+    }
+
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: #cc1939;
+    text-decoration: none;
+    font-weight: 500;
+}
+.back-link:hover {
+    text-decoration: underline;
+}
+
+
+    /* ===== Form Container ===== */
+    .form-container {
+        max-width: 900px;
+        margin: 0 auto;
+        margin-bottom: 20px;
+        background: white;
+        border-radius: 12px;
+        padding: 20px 25px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    /* ===== 2 COLUMN GRID ===== */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px 30px;
+    align-items: start;
+}
+
+    /* Field wrapper */
+    .form-group {
+    display: grid;
+    grid-template-rows: auto 36px;
+    gap: 5px;
+}
+
+    /* Labels */
+    .form-group label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    /* Inputs */
+    .form-group input,
+    .form-group select {
+        padding: 8px 12px;
+        width: 100%;
+        border: 1px solid #cfd3da;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        height: 36px;
+        background: #f9fafb;
+        outline: none;
+        transition: 0.2s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #cc1939;
+        background: white;
+        box-shadow: 0 0 0 2px rgba(204, 25, 57, 0.18);
+    }
+
+    /* Toggles now align properly */
+    .toggle-container {
+        margin-top: 3px;
+        width: 44px;
+        height: 22px;
+    }
+
+    /* ===== Buttons ===== */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        margin-top: 25px;
+    }
+
+    .form-actions button,
+    .form-actions a {
+        flex: 1;
+        height: 42px;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .form-actions button {
+        background: #cc1939;
+        color: white;
+        border: none;
+    }
+
+    .form-actions button:hover {
+        background: linear-gradient(135deg, #cc1939, #f36c7a);
+    }
+
+    .form-actions a {
+        background: #e5eef4;
+        color: #cc1939;
+    }
+
+    .form-actions a:hover {
+        background: #d8e8f0;
+    }
+
+    /* MOBILE VERSION */
+    @media (max-width: 700px) {
+        .form-grid {
+            grid-template-columns: 1fr; /* revert to 1 column */
+        }
+    }
+
+</style>
+
+<!-- ===== Header ===== -->
+<div class="header-container">
+    <h2 class="header-title">Edit Employee: {{ employee.full_name }}</h2>
+</div>
+
+<a href="/employee/{{ employee.id }}/" class="back-link">← Back to Employee Profile</a>
+
+<!-- ===== FORM ===== -->
+<form method="post" class="form-container">
+    {% csrf_token %}
+
+    <div class="form-grid">
+
+        <div class="form-group">
+            <label>Employee ID:</label>
+            <input type="text" name="employee_serial_id" value="{{ employee.employee_serial_id|default:'' }}">
+        </div>
+
+        <div class="form-group">
+            <label>Full Name<span style="color:#dc2626;">*</span>:</label>
+            <input type="text" name="full_name" value="{{ employee.full_name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Date of Birth:</label>
+            <input type="date" name="date_of_birth" value="{{ employee.date_of_birth|date:'Y-m-d' }}">
+        </div>
+
+        <div class="form-group">
+            <label>Email<span style="color:#dc2626;">*</span>:</label>
+            <input type="email" name="email" value="{{ employee.email }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Phone<span style="color:#dc2626;">*</span>:</label>
+            <input type="text" name="phone" value="{{ employee.phone }}">
+        </div>
+
+        <div class="form-group">
+            <label>Customer<span style="color:#dc2626;">*</span>:</label>
+            <select name="main_account">
+                <option value="">-- Select Customer --</option>
+                {% for client in main_clients %}
+                    <option value="{{ client.pk }}" {% if client == employee.main_account %}selected{% endif %}>{{ client.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Is Active<span style="color:#dc2626;">*</span>:</label>
+            <select name="is_active">
+                <option value="True" {% if employee.is_active %}selected{% endif %}>Yes</option>
+                <option value="False" {% if not employee.is_active %}selected{% endif %}>No</option>
+            </select>
+        </div>
+
+        <!--
+        <div class="form-group">
+            <label>Pass Type:</label>
+            <select name="pass_type">
+                {% for migrant in migrant_types %}
+                    <option value="{{ migrant.pk }}" {% if migrant == employee.pass_type %}selected{% endif %}>{{ migrant.migrant_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        -->
+
+        <div class="form-group">
+            <label>Designation<span style="color:#dc2626;">*</span>:</label>
+            <input type="text" name="work_role" value="{{ employee.work_role }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Date of Joining:</label>
+            <input type="date" name="date_of_joining" value="{{ employee.date_of_joining|date:'Y-m-d' }}">
+        </div>
+
+        <div class="form-group">
+            <label>SOW Start Date:</label>
+            <input type="date" name="sow_start_date" value="{{ employee.sow_start_date|date:'Y-m-d' }}">
+        </div>
+
+        <div class="form-group">
+            <label>SOW End Date:</label>
+            <input type="date" name="sow_end_date" value="{{ employee.sow_end_date|date:'Y-m-d' }}">
+        </div>
+
+        <!--
+        <div class="form-group">
+            <label>Is PMO:</label>
+            <div class="toggle-container">
+                <input type="checkbox" name="is_pmo" {% if employee.is_pmo %}checked{% endif %}>
+                <label class="toggle-label"></label>
+            </div>
+        </div>
+        -->
+
+        <div class="form-group">
+            <label>OT Allowed:</label>
+            <div class="toggle-container">
+                <input type="checkbox" name="ot_allowed" {% if employee.ot_allowed %}checked{% endif %}>
+                <label class="toggle-label"></label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Work Hours Allowed During Public Holidays:</label>
+            <div class="toggle-container">
+                <input type="checkbox" name="ph_allowed" {% if employee.ph_allowed %}checked{% endif %}>
+                <label class="toggle-label"></label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Shift Hours / Day:</label>
+            <input type="number" name="shift_hours_day" value="{{ employee.shift_hours_day|default:8 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Shift Days / Week<span style="color:#dc2626;">*</span>:</label>
+            <input type="number" name="shift_days_week" value="{{ employee.shift_days_week|default:5 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Annual Leave Entitlement<span style="color:#dc2626;">*</span>:</label>
+            <input type="number" name="yearly_annual_leave_entitlement" value="{{ employee.yearly_annual_leave_entitlement|default:14 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Sick Leave Entitlement<span style="color:#dc2626;">*</span>:</label>
+            <input type="number" name="yearly_sick_leave_entitlement" value="{{ employee.yearly_sick_leave_entitlement|default:14 }}">
+        </div>
+
+        <div class="form-group">
+            <label>Location / Country<span style="color:#dc2626;">*</span>:</label>
+            <select name="location">
+                {% for code, label in country_choices %}
+                    <option value="{{ code }}" {% if employee.location == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+    </div>
+
+    <div class="form-actions">
+        <button type="submit">Save</button>
+        <a href="{% url 'employee_list' %}">Back</a>
+    </div>
+
+</form>
+
+{% endblock %}

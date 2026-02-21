@@ -1,0 +1,129 @@
+{% extends 'employees/base.html' %}
+
+{% block content %}
+
+<style>
+.container { max-width:900px; margin:0 auto; padding:0 16px; }
+.card { background:#fff; border-radius:12px; padding:22px; box-shadow:0 6px 18px rgba(12,20,43,0.06); margin-bottom:18px; }
+.title { font-size:20px; color:#1e3a8a; font-weight:700; text-align:center; margin-bottom:10px; }
+.row { display:flex; gap:18px; margin-bottom:12px; flex-wrap:wrap; }
+.col { flex:1; min-width:240px; background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e6eef9; }
+.label { font-weight:700; color:#1e3a8a; display:block; margin-bottom:6px; }
+.value { font-size:15px; color:#0f172a; }
+.attachments { background:#f9fafc; padding:14px; border-radius:10px; border:1px solid #eef2f7; margin-top:12px; }
+.att-item { display:flex; align-items:center; gap:12px; padding:8px 6px; border-radius:8px; }
+.att-item a { color:#2563eb; text-decoration:none; font-weight:600; }
+.back { display:flex; margin-top:16px; color:#cc1939; text-decoration:none; font-weight:600; align-items: center; }
+.rej { color:#b91c1c; font-weight:700; }
+    .bk { justify-content:center; display:flex; color:#1883D7; }
+
+</style>
+
+
+
+ {% if is_admin %}
+    {% if employee_filter %}
+        <a class="back" href="{% url 'admin_claims' %}?employee={{ employee_filter }}">
+            ← Back to Employee Claims
+        </a>
+    {% else %}
+        <div class="bk">
+        <a class="back" href="{% url 'admin_claims' %}">
+            ← Back to All Claims
+        </a>
+        </div>
+    {% endif %}
+{% else %}
+    <a class="back" href="{% url 'claim_list' %}">← Back to My Claims</a>
+{% endif %}
+
+
+<div class="container">
+  <div class="card">
+    <div class="title">Claim #{{ claim.id }}</div>
+
+    <div class="row">
+      <div class="col">
+        <span class="label">Description</span>
+        <div class="value">{{ claim.description }}</div>
+      </div>
+
+      <div class="col">
+        <span class="label">Period</span>
+        <div class="value">{{ claim.start_date }} → {{ claim.end_date }}</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <span class="label">Amount</span>
+        <div class="value">${{ claim.amount }}</div>
+      </div>
+
+      <div class="col">
+        <span class="label">Status</span>
+        <div class="value">
+          {% if claim.status == "SUBMITTED" %}
+            <span style="color:#2563eb;font-weight:700;">Submitted</span>
+          {% else %}
+            <span class="rej">Rejected</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+<div class="row">
+  <div class="col">
+    <span class="label">Submitted On</span>
+    <div class="value">{{ claim.submitted_at|date:"d M Y, h:i A" }}</div>
+  </div>
+
+  {% if claim.status == "REJECTED" %}
+  <div class="col">
+    <span class="label">Rejected On</span>
+    <div class="value">
+      {{ claim.rejected_at|date:"d M Y, h:i A" }}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+    <div class="attachments">
+      <span class="label">Attachments</span>
+      {% if attachments %}
+        <div style="margin-top:10px;">
+          {% for att in attachments %}
+            <div class="att-item">
+              <div>📎</div>
+              <div>
+                <a href="{{ att.file.url }}" target="_blank">{{ att.file.name|slice:"-40:" }}</a>
+                <div style="color:#6b7280; font-size:13px;">Uploaded: {{ att.uploaded_at|date:"d M Y, h:i A" }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="color:#6b7280; margin-top:8px;">No attachments uploaded.</div>
+      {% endif %}
+    </div>
+
+    {% if claim.status == "REJECTED" and claim.rejected_comment %}
+      <div style="margin-top:12px; background:#fff7ed; border-left:4px solid #f59e0b; padding:10px; border-radius:6px;">
+        <strong>Rejection Note:</strong> {{ claim.rejected_comment }}
+      </div>
+    {% endif %}
+
+  {% if is_admin and claim.status == "SUBMITTED" %}
+    <div style="margin-top:30px; margin-bottom:30px; justify-content: center; display:flex;">
+        <a href="{% url 'admin_reject_claim' claim.id %}"
+           style="background:#b91c1c; padding:10px 16px; color:white;
+                  border-radius:8px; text-decoration:none; font-weight:600;">
+            Reject Claim
+        </a>
+    </div>
+{% endif %}
+
+
+  </div>
+</div>
+{% endblock %}

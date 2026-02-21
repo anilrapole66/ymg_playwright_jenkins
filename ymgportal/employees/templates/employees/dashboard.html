@@ -1,0 +1,343 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block content %}
+<style>
+
+    body {
+        font-size: 14px !important;    /* global reduction */
+    }
+
+    .container, .content {
+        max-width: 1300px;             /* more breathing room */
+        margin: 0 auto;
+    }
+
+    table th, table td {
+        font-size: 13px !important;    /* slimmer table text */
+        padding: 8px 10px !important;  /* reduce height */
+    }
+
+    input, select, button {
+        font-size: 14px !important;
+        padding: 6px 10px !important;  /* previously 10–14px */
+    }
+
+    /* ---------- PAGE ---------- */
+.page-wrapper {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 12px;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+/* ---------- ACTION BAR ---------- */
+.action-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.action-link {
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    background: #f3f4f6;
+    color: #111;
+}
+
+.action-link.active {
+    background: #cc1939;
+    color: white;
+}
+
+/* ---------- TABLE ---------- */
+.table-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+th {
+    background: #cc1939;
+    color: white;
+    padding: 10px;
+    text-align: left;
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+tr:hover td {
+    background: #f9fafb;
+}
+
+/* ---------- STATUS ---------- */
+.status-pill {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-inactive {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* ---------- TABLE LINKS ---------- */
+.table-link {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+    margin-right: 6px;
+}
+
+.table-link:hover {
+    text-decoration: underline;
+}
+
+/* ---------- FORM ---------- */
+.form-card {
+    max-width: 600px;
+    background: white;
+    padding: 22px;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+}
+
+.form-row {
+    margin-bottom: 14px;
+}
+
+.form-row label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 18px;
+}
+
+.primary-btn {
+    background: #cc1939;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cancel-link {
+    color: #555;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+    h1, h2, h3 {
+        transform: scale(0.95);         /* subtle size decrease */
+        transform-origin: left center;
+    }
+    .dashboard-layout,
+    .main-sidebar,
+    .dashboard-content {
+        font-family: 'Poppins', sans-serif;
+        color: #111111;
+    }
+
+    .dashboard-layout {
+    position: fixed;
+    top: 60px;
+    left: 230px;
+    right: 0;
+    bottom: 0;
+    background:#fff;
+    border-radius: 18px 0 0 18px;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Sidebar (already correct) */
+.main-sidebar {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 230px;
+    height: calc(100vh - 90px);
+    background: #fff;
+    padding: 25px 0;
+    border-radius: 0 14px 14px 0;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+}
+
+
+    .main-sidebar h2 {
+        text-align: center;
+        font-size: 1.2rem;
+        margin-bottom: 25px;
+        font-weight: 600;
+        color: #111111;
+    }
+
+    .nav-item {
+        padding: 12px 20px;
+        border-left: 4px solid transparent;
+        color: #111111;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        display: block;
+    }
+
+    .nav-item:hover {
+        background: #f30000;
+        color: White;
+    }
+
+    .nav-item.active {
+       background: #f30000;
+        border-left: 4px solid #111111;
+        font-weight: 600;
+        color:white;
+    }
+
+    /* ==== Dashboard Content ==== */
+    .dashboard-content {
+        flex: 1;
+        padding: 30px 30px;
+        background: #fff;
+        min-height: calc(100vh - 160px);
+        box-sizing: border-box;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        transition: box-shadow 0.3s ease, transform 0.2s ease;
+        border-radius: 18px;
+    }
+
+    /* ==== Responsive ==== */
+    @media (max-width: 768px) {
+        .main-sidebar {
+            position: static;
+            width: 100%;
+            height: auto;
+            border-radius: 0 0 14px 14px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 15px 0;
+        }
+
+        .dashboard-content {
+            margin-left: 0;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 14px;
+        }
+    }
+
+    .header.shrink {
+    padding: 8px 28px;
+    background: #ffffffee;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.header.shrink .logo-img {
+    height: 48px;
+}
+
+</style>
+
+
+<div class="dashboard-layout">
+    <!-- Main Sidebar -->
+    <div class="main-sidebar">
+        <a href="{% url 'employee_list' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'employee_list' %}active{% endif %}">Employee
+            List</a>
+        <a href="{% url 'admin_leave_approvals' %}"
+   class="nav-item {% if request.resolver_match.url_name == 'admin_leave_approvals' %}active{% endif %}">
+    Leave Approvals
+</a>
+        <a href="{% url 'configurables' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'configurables' %}active{% endif %}">Configurables</a>
+        <a href="{% url 'admin_timesheets' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'admin_timesheets' %}active{% endif %}">Timesheets</a>
+        <a href="{% url 'admin_claims' %}"
+           class="nav-item {% if request.resolver_match.url_name == 'admin_claims' %}active{% endif %}">Claim
+            Management</a>
+    <a href="{% url 'public_holidays' %}"
+   class="nav-item {% if request.resolver_match.url_name == 'public_holidays' %}active{% endif %}">
+   Public Holidays
+</a>
+        <a href="{% url 'leave_history' %}"
+   class="nav-item {% if request.resolver_match.url_name == 'admin_leave_history' %}active{% endif %}">
+    Leave History
+</a>
+
+        <a href="{% url 'admin_assets' %}"
+   class="nav-item {% if request.resolver_match.url_name == 'admin_assets' %}active{% endif %}">
+    Assets
+</a>
+
+
+    </div>
+
+    <!-- Dashboard Dynamic Content -->
+    <div class="dashboard-content">
+        {% block dashboard_content %}{% endblock %}
+    </div>
+</div>
+
+<script>
+    // ✅ Handle sidebar active highlight on click (client-side support)
+    const navItems = document.querySelectorAll('.nav-item');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            navItems.forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+        });
+    });
+</script>
+
+{% endblock %}

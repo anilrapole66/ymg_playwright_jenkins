@@ -1,0 +1,442 @@
+{% extends 'employees/dashboard.html' %}
+
+{% block title %}
+    Add Employee
+{% endblock %}
+
+{% block dashboard_content %}
+    <style>
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 10px 0;
+        }
+
+        .header-title {
+            color: #111;
+            font-size: 1.9rem;
+            margin-left: 225px;
+            font-weight: 700;
+            text-align: center;
+            flex: 1;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.08);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .header-buttons a {
+            padding: 8px 16px;
+            background-color: #cc1939;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .header-buttons a:hover {
+            background: linear-gradient(135deg, #cc1939, #f36c7a);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+        }
+        .form-grid {
+         display: grid;
+         grid-template-columns: repeat(2, 1fr);
+         gap: 20px 30px;
+    }
+
+        .form-field {
+         display: flex;
+         flex-direction: column;
+    }
+
+        .form-container {
+            max-width: 650px;
+            margin: 0 auto;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 30px 30px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(6px);
+            transition: all 0.3s ease;
+        }
+
+        .form-container:hover {
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+        }
+
+        .form-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-container input[type="text"],
+        .form-container input[type="email"],
+        .form-container input[type="date"],
+        .form-container select {
+            width: 100%;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            outline: none;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+            height: 42px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .form-container select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            line-height: normal;
+            padding-right: 40px;
+            background-color: #f9fafb;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='12' width='12' xmlns='http://www.w3.org/2000/svg'><polygon points='0,0 12,0 6,8'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 16px;
+        }
+
+        .form-container input:focus,
+        .form-container select:focus {
+            border-color: #2563eb;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            transform: translateY(-1px);
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #cc1939;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+            height: 46px;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #cc1939, #f36c7a);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-buttons {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            .header-title {
+                font-size: 1.6rem;
+            }
+
+            button {
+                font-size: 0.95rem;
+            }
+        }
+
+
+                /* Toggle switch styling */
+        .toggle-container {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            margin-bottom: 18px;
+        }
+
+        .toggle-input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-label {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #d1d5db;
+            border-radius: 30px;
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-label::before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+        }
+
+        .toggle-input:checked + .toggle-label {
+            background-color: #cc1939;
+        }
+
+        .toggle-input:checked + .toggle-label::before {
+            transform: translateX(24px);
+        }
+
+                /* Match numeric fields with text input look */
+        .form-container input[type="number"],
+        .styled-input {
+            width: 100%;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            outline: none;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+            height: 42px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            -moz-appearance: textfield; /* Remove number spinner Firefox */
+        }
+
+        /* Remove number spinners in Chrome, Edge, Safari */
+        .form-container input[type="number"]::-webkit-inner-spin-button,
+        .form-container input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .form-container input[type="number"]:focus {
+            border-color: #2563eb;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            transform: translateY(-1px);
+        }
+
+        a.back-link {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 25px;
+            text-decoration: none;
+            color: #cc1939;
+            text-align: center;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.25s ease;
+        }
+
+        a.back-link:hover {
+            color: #cc1939;
+            text-decoration: underline;
+            transform: translateY(-1px);
+        }
+
+
+    </style>
+
+    <!-- Header Section -->
+    <div class="header-container">
+        <h2 class="header-title">Add a New Employee</h2>
+        <div class="header-buttons">
+            <a href="{% url 'upload_employees' %}">Upload via Excel</a>
+        </div>
+    </div>
+
+    <a href="{% url 'employee_list' %}" class="back-link">← Back to List</a>
+
+
+    <form method="post" class="form-container">
+        {% csrf_token %}
+
+        <div class="form-grid">
+            <div class="form-field">
+        <label for="employee_serial_id">Employee ID <span style="color:#dc2626;">*</span>:</label>
+        <input type="text" name="employee_serial_id" id="employee_serial_id" placeholder="Enter employee ID" required>
+            </div>
+
+            <div class="form-field">
+        <label for="full_name">Full Name <span style="color:#dc2626;">*</span>:</label>
+        <input type="text" name="full_name" id="full_name" placeholder="Enter full name" required>
+                </div>
+
+            <div class="form-field">
+        <label for="date_of_birth">Date of Birth:</label>
+        <input type="date" name="date_of_birth" id="date_of_birth">
+            </div>
+
+            <div class="form-field">
+        <label for="email">Email <span style="color:#dc2626;">*</span>:</label>
+        <input type="email" name="email" id="email" placeholder="Enter email" required>
+            </div>
+
+            <div class="form-field">
+        <label for="phone">Phone <span style="color:#dc2626;">*</span>:</label>
+        <input type="text" name="phone" id="phone" placeholder="Enter phone number" required>
+            </div>
+
+            <div class="form-field">
+        <label for="main_account">Customer <span style="color:#dc2626;">*</span>:</label>
+        <select name="main_account" id="main_account" required>
+            <option value="">-- Select Customer  --</option>
+            {% for main_client in main_clients %}
+                <option value="{{ main_client.pk }}">{{ main_client.name }}</option>
+            {% endfor %}
+        </select>
+            </div>
+
+<!--            <div class="form-field">-->
+<!--        <label for="end_client">End Client:</label>-->
+<!--        <select name="end_client" id="end_client">-->
+<!--            <option value="">&#45;&#45; Select End Client &#45;&#45;</option>-->
+<!--            {% for end_client in end_clients %}-->
+<!--                <option value="{{ end_client.pk }}">{{ end_client.name }}</option>-->
+<!--            {% endfor %}-->
+<!--        </select>-->
+<!--            </div>-->
+
+<!--            <div class="form-field">-->
+<!--        <label for="pass_type">Pass Type:</label>-->
+<!--        <select name="pass_type" id="pass_type">-->
+<!--            <option value="">&#45;&#45; Select Pass Type &#45;&#45;</option>-->
+<!--            {% for migrant_type in migrant_types %}-->
+<!--                <option value="{{ migrant_type.pk }}">{{ migrant_type.migrant_name }}</option>-->
+<!--            {% endfor %}-->
+<!--        </select>-->
+<!--            </div>-->
+
+            <div class="form-field">
+          <label for="work_role">Designation <span style="color:#dc2626;">*</span></label>
+        <input type="text" name="work_role" id="work_role" placeholder="Enter designation" required>
+            </div>
+
+            <div class="form-field">
+        <label for="role_sow">Role / SOW:</label>
+        <select name="role_sow" id="role_sow">
+            <option value="">-- Select Role / SOW --</option>
+            {% for role in rolesows %}
+                <option value="{{ role.pk }}">{{ role.name }} ({{ role.end_client.name }})</option>
+            {% endfor %}
+        </select>
+            </div>
+
+            <div class="form-field">
+        <label for="date_of_joining">Date of Joining <span style="color:#dc2626;">*</span>:</label>
+        <input type="date" name="date_of_joining" id="date_of_joining" required>
+            </div>
+
+            <div class="form-field">
+        <label for="sow_start_date">SOW Start Date:</label>
+        <input type="date" name="sow_start_date" id="sow_start_date">
+            </div>
+
+            <div class="form-field">
+        <label for="sow_end_date">SOW End Date:</label>
+        <input type="date" name="sow_end_date" id="sow_end_date">
+            </div>
+
+<!--        <div class="form-field">-->
+<!--        <label for="is_pmo">Is PMO:</label>-->
+<!--        <div class="toggle-container">-->
+<!--            <input type="checkbox" name="is_pmo" id="is_pmo" class="toggle-input">-->
+<!--            <label for="is_pmo" class="toggle-label"></label>-->
+<!--        </div>-->
+<!--        </div>-->
+
+            <div class="form-field">
+    <label for="ot_allowed">OT (Over Time) Allowed? :</label>
+        <div class="toggle-container">
+            <input type="checkbox" name="ot_allowed" id="ot_allowed" class="toggle-input">
+            <label for="ot_allowed" class="toggle-label"></label>
+        </div>
+            </div>
+
+            <div class="form-field">
+        <label for="ph_allowed" >Work Hours Allowed During Public Holidays?: </label>
+        <div class="toggle-container">
+            <input type="checkbox" name="ph_allowed" id="ph_allowed" class="toggle-input">
+            <label for="ph_allowed" class="toggle-label"></label>
+        </div>
+            </div>
+
+        <!-- Shift Hours -->
+            <div class="form-field">
+        <label for="shift_hours_day">Shift Hours (Per Day):</label>
+        <input type="number" name="shift_hours_day" id="shift_hours_day"
+               class="styled-input" value="8" min="1" max="24" placeholder="e.g. 8" step="0.5">
+            </div>
+
+        <!-- Shift Days -->
+            <div class="form-field">
+         <label for="shift_days_week">Shift Days (Per Week):</label>
+            <input type="number" name="shift_days_week" id="shift_days_week"
+                   class="styled-input" value="5" min="1" max="7" placeholder="e.g. 5" step="0.5">
+            </div>
+
+            <div class="form-field">
+        <label for="yearly_annual_leave_entitlement">Annual Leave Entitlement:</label>
+        <input type="number" name="yearly_annual_leave_entitlement" id="yearly_annual_leave_entitlement"
+               class="styled-input" value="14" min="0" max="25" placeholder="e.g. 5">
+            </div>
+
+            <div class="form-field">
+         <label for="yearly_sick_leave_entitlement">Sick Leave Entitlement:</label>
+            <input type="number" name="yearly_sick_leave_entitlement" id="yearly_sick_leave_entitlement"
+                   class="styled-input" value="14" min="0" max="25" placeholder="e.g. 5">
+            </div>
+
+            <div class="form-field">
+        <label for="id_location">Select Country</label>
+          {{ employee_form.location }}
+            </div>
+
+            </div>
+
+        <button type="submit">Add Employee</button>
+    </form>
+{% endblock %}

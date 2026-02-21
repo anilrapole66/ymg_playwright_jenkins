@@ -1,0 +1,133 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}
+    Edit Profile
+{% endblock %}
+
+{% block content %}
+<style>
+
+/* ==== Page Header (Made compact) ==== */
+h2 {
+  color: #1e3a8a;
+  text-align: center;
+  margin: 20px 0 15px;       /* reduced */
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 22px;           /* reduced */
+}
+
+/* ==== Form Container (compact) ==== */
+.form-container {
+  max-width: 480px;          /* made narrower */
+  margin: 0 auto;
+  background: #fff;
+  padding: 22px 20px;        /* reduced */
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* ==== Labels (compact) ==== */
+.form-container label {
+  display: block;
+  margin-bottom: 4px;        /* reduced */
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.85rem;
+}
+
+/* ==== Inputs (compact height) ==== */
+.form-container .form-control {
+  width: 100%;
+  padding: 8px 10px;         /* reduced */
+  margin-bottom: 12px;       /* reduced */
+  border: 1px solid #cfd3da;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  font-size: 0.9rem;
+  height: 36px;              /* reduced */
+  outline: none;
+  transition: 0.2s;
+}
+
+.form-container .form-control:focus {
+  border-color: #2563eb;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* ==== BUTTON ROW (side-by-side) ==== */
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.button-row button,
+.button-row a {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.25s ease;
+  height: 40px;
+}
+
+/* Save Button */
+.button-row button {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+}
+
+.button-row button:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+/* Back Button */
+.button-row a {
+  background: #eef3ff;
+  color: #1e3a8a;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-row a:hover {
+  background: #dbe3ff;
+  transform: translateY(-2px);
+}
+
+/* ==== Responsive ==== */
+@media (max-width: 600px) {
+  .button-row {
+    flex-direction: column;
+  }
+}
+
+</style>
+
+<div class="form-container">
+    <h2>Edit Your Profile</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <!-- SIDE-BY-SIDE BUTTONS -->
+        <div class="button-row">
+            <button type="submit">Save</button>
+            <a href="{% url 'employee_home' %}">Back</a>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

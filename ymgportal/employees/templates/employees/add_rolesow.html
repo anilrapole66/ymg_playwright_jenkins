@@ -1,0 +1,86 @@
+{% extends 'employees/dashboard.html' %}
+
+{% block title %}
+Add SOW Role
+{% endblock %}
+
+{% block dashboard_content %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 40px auto; /* Center the form container */
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-container h2 {
+        text-align: center;
+        color: #111111;
+        margin-bottom: 20px;
+    }
+
+    .form-container label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+        color: #111111;
+    }
+
+    .form-container input[type="text"],
+    .form-container textarea,
+    .form-container select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .form-container button {
+        width: 100%;
+        padding: 10px;
+     background-color: #cc1939;
+    color: #fff;
+        font-size: 1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .form-container button:hover {
+       background: linear-gradient(135deg, #cc1939, #f36c7a);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+    color: #fff;
+    }
+
+    .form-container a {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+         color: #cc1939;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .form-container a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="form-container">
+    <h2>Add SOW Role</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add Role</button>
+    </form>
+    <a href="{% url 'configurables' %}">Back to Configurables</a>
+
+</div>
+{% endblock %}

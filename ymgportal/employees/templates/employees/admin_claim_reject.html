@@ -1,0 +1,27 @@
+{% extends 'employees/base.html' %}
+{% block dashboard_content %}
+<style>
+.card { background:white; padding:25px; border-radius:12px;
+        box-shadow:0 6px 18px rgba(12,20,43,0.06); max-width:700px; margin:auto; }
+.title { text-align:center; font-size:22px; color:#b91c1c; font-weight:700; margin-bottom:20px; }
+.label { font-weight:700; color:#1e3a8a; margin-bottom:8px; }
+textarea { width:100%; border-radius:8px; padding:12px; border:1px solid #e5e7eb; min-height:120px; }
+.submit-btn { width:100%; padding:12px; background:#dc2626; color:white;
+              font-weight:700; border-radius:8px; margin-top:14px; border:none; }
+.cancel { display:block; margin-top:12px; text-align:center; color:#2563eb; text-decoration:none; }
+</style>
+
+<div class="card">
+    <div class="title">Reject Claim #{{ claim.id }}</div>
+
+    <form method="post">
+        {% csrf_token %}
+        <label class="label">Rejection Reason</label>
+        <textarea name="reason" placeholder="Explain why this claim is rejected..." required></textarea>
+
+        <button type="submit" class="submit-btn">Reject Claim</button>
+        <a href="{% url 'admin_claim_detail' claim.id %}" class="cancel">Cancel</a>
+    </form>
+</div>
+
+{% endblock %}

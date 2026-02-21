@@ -1,0 +1,157 @@
+{% extends 'employees/base.html' %}
+{% block title %}YMG Portal Home{% endblock %}
+{% block content %}
+
+<style>
+
+    .ui-update-strip {
+    background: linear-gradient(90deg, #e0f2fe, #f0f9ff);
+    border-left: 4px solid #cc1939;
+    color: #0f172a;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+/* MAIN DASHBOARD WRAPPER */
+.dashboard-box {
+    max-width: 1050px;
+    margin: 25px auto;
+    margin-top: -20px;
+    background: white;
+    padding: 22px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+}
+
+/* WELCOME TITLE */
+.welcome-title {
+    text-align: center;
+    color: #cc1939;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 50px;
+}
+
+/* SECTION HEADER */
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+    margin: 14px 0 10px 0;
+}
+
+/* PROFILE GRID */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.info-item {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.info-item span {
+    font-weight: 600;
+    color: #111;
+}
+
+/* CARDS FOR HOLIDAYS + LEAVE CYCLE */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.card-item {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.card-item span {
+    font-weight: 600;
+    color: #111;
+}
+
+/* MENU BUTTON (if needed later) */
+.menu-btn {
+    display: block;
+    margin: 12px auto;
+    padding: 10px 16px;
+    width: 220px;
+    border-radius: 8px;
+    background: #cc1939;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.menu-btn:hover {
+    background: linear-gradient(135deg, #cc1939, #f36c7a);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .info-grid { grid-template-columns: 1fr; }
+    .card-grid { grid-template-columns: 1fr 1fr; }
+    .dashboard-box { padding: 16px; margin-top: 15px; }
+}
+</style>
+
+
+
+<div class="dashboard-box">
+
+    <h2 class="welcome-title">Welcome, {{ employee.full_name }}!</h2>
+
+    <!-- PROFILE SECTION -->
+    <div class="section-title">Your Profile Summary</div>
+
+    <div class="info-grid">
+        <div class="info-item"><span>Employee ID:</span> {{ employee.employee_serial_id|default:"N/A" }}</div>
+        <div class="info-item"><span>Date of Birth:</span> {{ employee.date_of_birth|date:"d M Y"|default:"N/A" }}</div>
+
+        <div class="info-item"><span>Email:</span> {{ employee.email }}</div>
+        <div class="info-item"><span>Phone:</span> {{ employee.phone|default:"Not Provided" }}</div>
+
+        <div class="info-item"><span>Client:</span> {{ employee.main_account.name|default:"N/A" }}</div>
+        <div class="info-item"><span>Designation:</span> {{ employee.work_role|default:"N/A" }}</div>
+
+        <div class="info-item"><span>Date of Joining:</span> {{ employee.date_of_joining|date:"d M Y" }}</div>
+        <div class="info-item"><span>Status:</span> {{ employee.is_active|yesno:"Active,Inactive" }}</div>
+
+    </div>
+
+    <!-- UPCOMING PUBLIC HOLIDAYS -->
+    {% if upcoming_holidays %}
+    <div class="section-title">Upcoming Public Holidays</div>
+
+    <div class="card-grid">
+        {% for ph in upcoming_holidays %}
+        <div class="card-item">
+            <span>{{ ph.holiday_name }}</span><br>
+            {{ ph.holiday_date }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,278 @@
+<style>
+/* ---------- PAGE WRAPPER ---------- */
+.page-wrapper {
+    max-width: 1050px;
+    margin: 25px auto;
+    padding: 0 10px;
+    margin-top: 10px;
+}
+
+/* ---------- HEADINGS ---------- */
+.page-title {
+    text-align: center;
+    color: #111;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    margin-top: -5px;
+}
+
+.back-link {
+    display: block;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #cc1939;
+    text-decoration: none;
+    font-weight: 500;
+}
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* ---------- SECTION BOXES ---------- */
+.section {
+    background: #fff;
+    margin-bottom: 22px;
+    padding: 18px 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 12px;
+}
+
+.table-card {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 20px;
+}
+
+/* ---------- SUMMARY TABLE ---------- */
+.pretty-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.pretty-table th {
+    background: #cc1939;
+    color: white;
+    padding: 7px 12px;
+    font-weight: 600;
+    text-align: center;
+    font-size: 13px;
+    border: 1px solid #cc1939;
+}
+
+.pretty-table td {
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.pretty-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* ---------- CHIPS ---------- */
+.chip-positive {
+    background: #dcfce7;
+    color: #166534;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.chip-negative {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* ---------- LEAVE HISTORY TABLE ---------- */
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.styled-table th {
+    background: #eef3ff;
+    padding: 10px;
+    font-weight: 700;
+    color: #1e3a8a;
+    text-align: center;
+}
+
+.styled-table td {
+    background: #fff;
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.styled-table tr:hover td {
+    background: #f9fafb;
+}
+
+/* Status Pills */
+.pill {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 11px;
+    color: white;
+}
+.pill-approved { background: #22c55e; }
+.pill-pending { background: #facc15; color: #78350f; }
+.pill-rejected { background: #ef4444; }
+
+/* Empty */
+.empty-msg {
+    padding: 16px;
+    text-align: center;
+    font-size: 14px;
+    color: #6b7280;
+}
+</style>
+
+<div class="page-wrapper">
+
+<!-- ================= LEAVE SUMMARY ================= -->
+<div class="section">
+    <div class="section-title">Leave Summary (Current Year)</div>
+
+    <div class="table-card">
+        <table class="pretty-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Entitled</th>
+                    <th>Used</th>
+                    <th>Adjustments</th>
+                    <th>Balance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Annual Leave</td>
+                    <td>{{ annual_entitled }}</td>
+                    <td>{{ annual_used }}</td>
+                    <td>
+                        {% if annual_adjustment_total > 0 %}
+                            <span class="chip-positive">+{{ annual_adjustment_total }}</span>
+                        {% elif annual_adjustment_total < 0 %}
+                            <span class="chip-negative">{{ annual_adjustment_total }}</span>
+                        {% else %}
+                            <span style="color:#6b7280;">0</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ annual_balance }}</strong></td>
+                </tr>
+
+                <tr>
+                    <td>Medical Leave</td>
+                    <td>{{ medical_entitled }}</td>
+                    <td>{{ medical_used }}</td>
+                    <td>
+                        {% if medical_adjustment_total > 0 %}
+                            <span class="chip-positive">+{{ medical_adjustment_total }}</span>
+                        {% elif medical_adjustment_total < 0 %}
+                            <span class="chip-negative">{{ medical_adjustment_total }}</span>
+                        {% else %}
+                            <span style="color:#6b7280;">0</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ medical_balance }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ================= MANUAL ADJUSTMENTS ================= -->
+<div class="section">
+    <div class="section-title">Manual Leave Adjustments</div>
+
+    <div class="table-card">
+        <table class="pretty-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Days</th>
+                    <th>Reason</th>
+                    <th>Approved By</th>
+                    <th>Added On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for adj in adjustments %}
+                <tr>
+                    <td>{{ adj.adjustment_type }}</td>
+                    <td>
+                        {% if adj.days > 0 %}
+                            <span class="chip-positive">+{{ adj.days }}</span>
+                        {% else %}
+                            <span class="chip-negative">{{ adj.days }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ adj.reason|default:"-" }}</td>
+                    <td>{{ adj.approved_by.username|default:"-" }}</td>
+                    <td>{{ adj.created_at|date:"d M Y, h:i A" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-msg">No adjustments for this year.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ================= LEAVE HISTORY ================= -->
+<div class="section">
+    <div class="section-title">Leave History</div>
+
+    {% if leave_history %}
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Type</th>
+                <th>Days</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for leave in leave_history %}
+            <tr>
+                <td>{{ leave.from }}</td>
+                <td>{{ leave.to }}</td>
+                <td>{{ leave.type }}</td>
+                <td>{{ leave.days }}</td>
+                <td>
+                    <span class="pill pill-{{ leave.status|lower }}">
+                        {{ leave.status }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="empty-msg">No leave applications found.</div>
+    {% endif %}
+</div>
+
+</div>
