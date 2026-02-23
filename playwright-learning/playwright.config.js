@@ -39,9 +39,9 @@ export default defineConfig({
    * Uses SQLite CI DB (settings_ci.py)
    */
   webServer: {
-  command: `cd .. && cd ymgportal && set DJANGO_SETTINGS_MODULE=ymgportal.settings_ci && ${PYTHON} ymgportal/manage.py migrate && ${PYTHON} ymgportal/manage.py runserver 127.0.0.1:8000`,
-  url: 'http://127.0.0.1:8000',
-  timeout: 120000,
-  reuseExistingServer: false
-},
+    command: `cmd /c "cd ../ymgportal && set DJANGO_SETTINGS_MODULE=ymgportal/employee_portal.settings.py && ${PYTHON} manage.py migrate && ${PYTHON} manage.py runserver 127.0.0.1:8000"`,
+    url: 'http://127.0.0.1:8000',
+    timeout: 180000,
+    reuseExistingServer: false
+  },
 });
