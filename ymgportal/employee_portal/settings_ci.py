@@ -1,17 +1,18 @@
 from .settings import *
 
-# use temporary DB for Jenkins tests
+# CI database (temporary SQLite)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'jenkins_test_db.sqlite3',
+        'NAME': BASE_DIR / 'ci_test_db.sqlite3',
     }
 }
 
-# faster password hashing in tests
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.MD5PasswordHasher',
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']

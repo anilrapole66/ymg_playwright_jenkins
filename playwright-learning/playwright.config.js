@@ -38,7 +38,7 @@ export default defineConfig({
    * Uses SQLite CI DB (settings_ci.py)
    */
   webServer: {
-  command: `cmd /c "cd ../ymgportal && call venv\\Scripts\\activate && set DJANGO_SETTINGS_MODULE=employee_portal.settings && python manage.py runserver 127.0.0.1:8000"`,
+  command: `cmd /c "cd ../ymgportal && call venv\\Scripts\\activate && set DJANGO_SETTINGS_MODULE=employee_portal.settings_ci && python manage.py migrate && python manage.py runserver 127.0.0.1:8000"`,
   url: 'http://127.0.0.1:8000',
   timeout: 180000,
   reuseExistingServer: false
