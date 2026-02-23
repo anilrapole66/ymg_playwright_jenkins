@@ -6,7 +6,6 @@ import { defineConfig, devices } from '@playwright/test';
  * Jenkins cannot access "python" command
  * So we use full executable path
  */
-const PYTHON = `"C:\\Users\\RAPOLE ANIL KUMAR\\AppData\\Local\\Programs\\Python\\Python313\\python.exe"`;
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -39,9 +38,9 @@ export default defineConfig({
    * Uses SQLite CI DB (settings_ci.py)
    */
   webServer: {
-    command: `cmd /c "cd ../ymgportal && set DJANGO_SETTINGS_MODULE=employee_portal.settings && ${PYTHON} manage.py migrate && ${PYTHON} manage.py runserver 127.0.0.1:8000"`,
-    url: 'http://127.0.0.1:8000',
-    timeout: 180000,
-    reuseExistingServer: false
-  },
+  command: `cmd /c "cd ../ymgportal && call venv\\Scripts\\activate && set DJANGO_SETTINGS_MODULE=employee_portal.settings && python manage.py runserver 127.0.0.1:8000"`,
+  url: 'http://127.0.0.1:8000',
+  timeout: 180000,
+  reuseExistingServer: false
+},
 });
