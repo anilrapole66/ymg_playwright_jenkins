@@ -1,14 +1,12 @@
 const base = require('@playwright/test');
-const LoginPage = require('../../pages/loginPage');
-const EmployeePage = require('../../pages/employeePage');
+const LoginPage = require('../pages/loginPage');
+const EmployeePage = require('../pages/employeePage');
 
-exports.test = base.test.extend({});
+const test = base.test;
 
-exports.expect = base.expect;
-
-// ✅ SAFE place — inside Playwright test context
-exports.test.afterEach(async ({ page }, testInfo) => {
+test.afterEach(async ({ page }, testInfo) => {
   try {
+
     const empId = testInfo.annotations.find(a => a.type === 'employeeId');
     if (!empId) return;
 
@@ -21,11 +19,15 @@ exports.test.afterEach(async ({ page }, testInfo) => {
     await employee.deleteEmployee(empId.description);
 
     const customer = testInfo.annotations.find(a => a.type === 'customerName');
-    if (customer) {
-      await employee.deletecustomer(customer.description);
-    }
+if (customer) {
+  await employee.deletecustomer(customer.description);
+}
+
 
   } catch (err) {
     console.log('Cleanup skipped:', err.message);
   }
 });
+
+
+module.exports = { test, expect: base.expect };
