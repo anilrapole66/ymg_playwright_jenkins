@@ -1,26 +1,23 @@
-const { test } = require('../fixtures/testBase');
+const { test } = require('@playwright/test');
 const LoginPage = require('../../pages/loginPage');
 const EmployeePage = require('../../pages/employeePage');
 
 test.afterEach(async ({ page }, testInfo) => {
-  try {
-    const empId = testInfo.annotations.find(a => a.type === 'employeeId');
-    if (!empId) return;
 
-    const login = new LoginPage(page);
-    const employee = new EmployeePage(page);
+  const annotation = testInfo.annotations.find(a => a.type === 'employeeId');
+  if (!annotation) return;
 
-    await login.open();
-    await login.login('Anil', 'Anil@123');
+  const empId = annotation.description;
 
-    await employee.deleteEmployee(empId.description);
+  const login = new LoginPage(page);
+  const employee = new EmployeePage(page);
 
-    const customer = testInfo.annotations.find(a => a.type === 'customerName');
-    if (customer) {
-      await employee.deletecustomer(customer.description);
-    }
+  // ensure logged in
+  await login.open();
+  await login.login('Anil', 'Anil@123');
 
-  } catch (err) {
-    console.log('Cleanup skipped:', err.message);
-  }
+  // delete created employee
+  await employee.deleteEmployee(empId);
+
+  console.log(`🧹 Cleaned employee: ${empId}`);
 });
