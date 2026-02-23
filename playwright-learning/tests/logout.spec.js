@@ -1,4 +1,4 @@
-const { test, expect } = require('./baseTest');
+const { test, expect } = require('../fixtures/testBase');
 const LoginPage = require('../pages/loginPage');
 const LogoutPage = require('../pages/logoutPage');
 const users = require('../testData/users.json');
