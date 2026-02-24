@@ -74,12 +74,11 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
- webServer: {
-  command: 'cmd /c "cd ../ymgportal && set PYTHONPATH=%cd% && python manage.py runserver 127.0.0.1:8000 --noreload --nothreading"',
-  url: 'http://127.0.0.1:8000',
-  timeout: 180000,
-  reuseExistingServer: false
-},
-  
+  webServer: {
+    command: '..\\venv\\Scripts\\python ..\\ymgportal\\manage.py runserver 127.0.0.1:8000 --noreload --nothreading',
+    url: 'http://127.0.0.1:8000',
+    timeout: 120000,
+    reuseExistingServer: false,
+  },
 });
 
