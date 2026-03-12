@@ -1,4 +1,8 @@
 from .settings import *
+import os
+
+# Override SECRET_KEY for CI
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-ci-only-key-not-for-production-use')
 
 # CI database (temporary SQLite)
 DATABASES = {
