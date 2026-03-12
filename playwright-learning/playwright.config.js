@@ -29,8 +29,10 @@ export default defineConfig({
     },
   ],
 
+  // PYTHONPATH and DJANGO_SETTINGS_MODULE are passed from Jenkinsfile via environment
+  // so Django can find the employee_portal module correctly
   webServer: {
-    command: 'set DJANGO_SETTINGS_MODULE=employee_portal.settings_ci && ..\\venv\\Scripts\\python ..\\ymgportal\\manage.py runserver 127.0.0.1:8000 --noreload --nothreading',
+    command: '..\\venv\\Scripts\\python ..\\ymgportal\\manage.py runserver 127.0.0.1:8000 --noreload --nothreading',
     url: 'http://127.0.0.1:8000',
     timeout: 120000,
     reuseExistingServer: !process.env.CI,

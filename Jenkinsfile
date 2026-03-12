@@ -19,23 +19,24 @@ pipeline {
 
         stage('Setup Python / Django') {
             steps {
-                bat '''
-                    python -m venv %WORKSPACE%\\venv
-                    call %WORKSPACE%\\venv\\Scripts\\activate
+                bat """
+                    python -m venv ${VENV_DIR}
+                    call ${VENV_DIR}\\Scripts\\activate
                     pip install --upgrade pip
-                    pip install -r %WORKSPACE%\\ymgportal\\requirements.txt
-                '''
+                    pip install -r ${PORTAL_DIR}\\requirements.txt
+                """
             }
         }
 
         stage('Run Django Migrations (CI DB)') {
             steps {
-                bat '''
-                    call %WORKSPACE%\\venv\\Scripts\\activate
-                    cd %WORKSPACE%\\ymgportal
+                bat """
+                    call ${VENV_DIR}\\Scripts\\activate
+                    cd ${PORTAL_DIR}
+                    set PYTHONPATH=${PORTAL_DIR}
                     set DJANGO_SETTINGS_MODULE=employee_portal.settings_ci
                     python manage.py migrate --run-syncdb
-                '''
+                """
             }
         }
 
@@ -53,12 +54,13 @@ pipeline {
         stage('Run Playwright Tests') {
             steps {
                 dir("${E2E_DIR}") {
-                    bat '''
-                        set PATH=%WORKSPACE%\\venv\\Scripts;%PATH%
+                    bat """
+                        set PATH=${VENV_DIR}\\Scripts;%PATH%
                         set CI=true
+                        set PYTHONPATH=${PORTAL_DIR}
                         set DJANGO_SETTINGS_MODULE=employee_portal.settings_ci
                         npx playwright test
-                    '''
+                    """
                 }
             }
         }
