@@ -30,13 +30,16 @@ pipeline {
 
         stage('Run Django Migrations (CI DB)') {
             steps {
-                bat """
-                    call ${VENV_DIR}\\Scripts\\activate
-                    cd ${PORTAL_DIR}
-                    set PYTHONPATH=${PORTAL_DIR}
-                    set DJANGO_SETTINGS_MODULE=employee_portal.settings_ci
-                    python manage.py migrate --run-syncdb
-                """
+                withCredentials([string(credentialsId: 'DJANGO_SECRET_KEY', variable: 'SECRET_KEY')]) {
+                    bat """
+                        call ${VENV_DIR}\\Scripts\\activate
+                        cd ${PORTAL_DIR}
+                        set PYTHONPATH=${PORTAL_DIR}
+                        set DJANGO_SETTINGS_MODULE=employee_portal.settings_ci
+                        set SECRET_KEY=%SECRET_KEY%
+                        python manage.py migrate --run-syncdb
+                    """
+                }
             }
         }
 
@@ -53,14 +56,17 @@ pipeline {
 
         stage('Run Playwright Tests') {
             steps {
-                dir("${E2E_DIR}") {
-                    bat """
-                        set PATH=${VENV_DIR}\\Scripts;%PATH%
-                        set CI=true
-                        set PYTHONPATH=${PORTAL_DIR}
-                        set DJANGO_SETTINGS_MODULE=employee_portal.settings_ci
-                        npx playwright test
-                    """
+                withCredentials([string(credentialsId: 'DJANGO_SECRET_KEY', variable: 'SECRET_KEY')]) {
+                    dir("${E2E_DIR}") {
+                        bat """
+                            set PATH=${VENV_DIR}\\Scripts;%PATH%
+                            set CI=true
+                            set PYTHONPATH=${PORTAL_DIR}
+                            set DJANGO_SETTINGS_MODULE=employee_portal.settings_ci
+                            set SECRET_KEY=%SECRET_KEY%
+                            npx playwright test
+                        """
+                    }
                 }
             }
         }
