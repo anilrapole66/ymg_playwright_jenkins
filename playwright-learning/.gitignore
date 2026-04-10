@@ -6,3 +6,6 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Local credentials — copy users.json.example to users.json and fill in real values
+testData/users.json

@@ -1,11 +1,9 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Base directory of your Django project
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-import os
-from dotenv import load_dotenv
 
 # Load .env
 load_dotenv(os.path.join(BASE_DIR, '.env'))
@@ -14,8 +12,8 @@ SESSION_COOKIE_AGE = 600
 SESSION_SAVE_EVERY_REQUEST = True
 
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-ALLOWED_HOSTS = ['*']
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -78,5 +76,4 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
-#eeeecw
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

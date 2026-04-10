@@ -7,7 +7,7 @@ class LoginPage {
   }
 
   async open() {
-    await this.page.goto('http://127.0.0.1:8000/login/');
+    await this.page.goto('/login/');
   }
 
   async login(username, password) {

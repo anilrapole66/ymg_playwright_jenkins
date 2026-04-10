@@ -8,6 +8,8 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
 
+  globalSetup: './tests/globalSetup.js',
+
   reporter: [
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['junit', { outputFile: 'test-results/junit-report.xml' }],
@@ -16,6 +18,7 @@ export default defineConfig({
 
   use: {
     baseURL: 'http://127.0.0.1:8000/',
+    storageState: 'playwright/.auth/admin.json',
     headless: true,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',

@@ -1,20 +1,19 @@
 const { test, expect } = require('./baseTest');
 const LoginPage = require('../pages/loginPage');
 const LogoutPage = require('../pages/logoutPage');
-const users = require('../testData/users.json');
+const credentials = require('../utils/credentials');
+
+// Fresh unauthenticated context so we can test the full login → logout flow
+test.use({ storageState: undefined });
 
 test('Logout flow', async ({ page }) => {
-
   const login = new LoginPage(page);
   const logout = new LogoutPage(page);
 
-  // FIRST LOGIN
   await login.open();
-  await login.login(users.admin.username, users.admin.password);
+  await login.login(credentials.admin.username, credentials.admin.password);
 
-  // THEN LOGOUT
   await logout.logout();
 
-  // VERIFY
-  await expect(page).toHaveURL('http://127.0.0.1:8000/login/');
+  await expect(page).toHaveURL(/\/login\//);
 });

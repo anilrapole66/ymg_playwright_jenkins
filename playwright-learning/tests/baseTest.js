@@ -1,33 +1,28 @@
 const base = require('@playwright/test');
-const LoginPage = require('../pages/loginPage');
 const EmployeePage = require('../pages/employeePage');
 
-const test = base.test;
+/**
+ * Extended test with shared afterEach cleanup.
+ * Auth state is loaded via storageState (set in playwright.config.js),
+ * so no explicit login is needed in cleanup.
+ */
+const test = base.test.extend({});
 
 test.afterEach(async ({ page }, testInfo) => {
   try {
-
     const empId = testInfo.annotations.find(a => a.type === 'employeeId');
     if (!empId) return;
 
-    const login = new LoginPage(page);
     const employee = new EmployeePage(page);
-
-    await login.open();
-    await login.login('Anil', 'Anil@123');
-
     await employee.deleteEmployee(empId.description);
 
-    const customer = testInfo.annotations.find(a => a.type === 'customerName');
-if (customer) {
-  await employee.deletecustomer(customer.description);
-}
-
-
+    const client = testInfo.annotations.find(a => a.type === 'clientName');
+    if (client) {
+      await employee.deleteCustomer(client.description);
+    }
   } catch (err) {
     console.log('Cleanup skipped:', err.message);
   }
 });
-
 
 module.exports = { test, expect: base.expect };
