@@ -17,7 +17,7 @@
  */
 
 pipeline {
-    agent { label 'windows' }
+    agent any
 
     options {
         timeout(time: 1, unit: 'MINUTES')
