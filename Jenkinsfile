@@ -76,7 +76,7 @@ pipeline {
                         cd ${PORTAL_DIR}
                         set PYTHONPATH=${PORTAL_DIR}
                         set DJANGO_SETTINGS_MODULE=employee_portal.settings_ci
-                        set SECRET_KEY=%SECRET_KEY%
+                        set "SECRET_KEY=%SECRET_KEY%"
                         python manage.py migrate --run-syncdb
                     """
                 }
@@ -102,9 +102,9 @@ pipeline {
                         cd ${PORTAL_DIR}
                         set PYTHONPATH=${PORTAL_DIR}
                         set DJANGO_SETTINGS_MODULE=employee_portal.settings_ci
-                        set SECRET_KEY=%SECRET_KEY%
-                        set TEST_ADMIN_USER=%TEST_ADMIN_USER%
-                        set TEST_ADMIN_PASS=%TEST_ADMIN_PASS%
+                        set "SECRET_KEY=%SECRET_KEY%"
+                        set "TEST_ADMIN_USER=%TEST_ADMIN_USER%"
+                        set "TEST_ADMIN_PASS=%TEST_ADMIN_PASS%"
                         python manage.py seed_ci
                     """
                 }
@@ -136,6 +136,11 @@ pipeline {
                         credentialsId: 'PLAYWRIGHT_ADMIN',
                         usernameVariable: 'TEST_ADMIN_USER',
                         passwordVariable: 'TEST_ADMIN_PASS'
+                    ),
+                    usernamePassword(
+                        credentialsId: 'PLAYWRIGHT_EMPLOYEE',
+                        usernameVariable: 'TEST_EMPLOYEE_USER',
+                        passwordVariable: 'TEST_EMPLOYEE_PASS'
                     )
                 ]) {
                     dir("${E2E_DIR}") {
@@ -144,9 +149,11 @@ pipeline {
                             set CI=true
                             set PYTHONPATH=${PORTAL_DIR}
                             set DJANGO_SETTINGS_MODULE=employee_portal.settings_ci
-                            set SECRET_KEY=%SECRET_KEY%
-                            set TEST_ADMIN_USER=%TEST_ADMIN_USER%
-                            set TEST_ADMIN_PASS=%TEST_ADMIN_PASS%
+                            set "SECRET_KEY=%SECRET_KEY%"
+                            set "TEST_ADMIN_USER=%TEST_ADMIN_USER%"
+                            set "TEST_ADMIN_PASS=%TEST_ADMIN_PASS%"
+                            set "TEST_EMPLOYEE_USER=%TEST_EMPLOYEE_USER%"
+                            set "TEST_EMPLOYEE_PASS=%TEST_EMPLOYEE_PASS%"
                             npx playwright test
                         """
                     }
@@ -204,19 +211,11 @@ pipeline {
         }
 
         success {
-            mail(
-                to: 'team@example.com',
-                subject: "Build Passed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "All tests passed on '${env.GIT_BRANCH}'.\nReport: ${env.BUILD_URL}Playwright_Test_Report"
-            )
+            echo "BUILD PASSED: All tests passed on '${env.GIT_BRANCH}' — Build #${env.BUILD_NUMBER}"
         }
 
         failure {
-            mail(
-                to: 'team@example.com',
-                subject: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "Tests failed on '${env.GIT_BRANCH}'.\nReport: ${env.BUILD_URL}Playwright_Test_Report"
-            )
+            echo "BUILD FAILED: Tests failed on '${env.GIT_BRANCH}' — Check report at ${env.BUILD_URL}"
         }
     }
 }

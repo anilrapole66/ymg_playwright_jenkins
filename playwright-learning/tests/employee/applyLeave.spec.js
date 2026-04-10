@@ -1,19 +1,20 @@
 const { test, expect } = require('@playwright/test');
 const LoginPage = require('../../pages/loginPage');
-const users = require('../../testData/users.json');
+const credentials = require('../../utils/credentials');
 const EmployeeProfilePage = require('../../pages/employee/employeeProfilePage');
 const LeaveDetailsPage = require('../../pages/employee/leaveDetailsPage');
 const ApplyLeavePage = require('../../pages/employee/applyLeavePage');
 
-test('employee', async ({ page }) => {
+test.use({ storageState: undefined });
 
+test('Employee apply leave', async ({ page }) => {
   const login = new LoginPage(page);
   const empProfile = new EmployeeProfilePage(page);
   const leaveDetails = new LeaveDetailsPage(page);
   const leave = new ApplyLeavePage(page);
 
   await login.open();
-  await login.login(users.employee.username, users.employee.password);
+  await login.login(credentials.employee.username, credentials.employee.password);
 
   await empProfile.openMenu();
   await empProfile.leaveDetails();
@@ -24,8 +25,6 @@ test('employee', async ({ page }) => {
     type: 'medical Leave',
     startDate: '2026-03-10',
     endDate: '2026-03-12',
-    reason: 'Medical appointment'
+    reason: 'Medical appointment',
   });
-
-  
 });
