@@ -1,20 +1,17 @@
 import os
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from employees.models import MainClient, RoleSow
+from employees.models import MainClient, RoleSow, Employee
 
 
 class Command(BaseCommand):
     """
-    Seeds the CI/CD database with the minimum lookup data that Playwright
-    tests depend on.  Safe to run on every build — all operations are
-    idempotent (get_or_create / update).
+    Seeds the CI/CD database with the minimum data that Playwright tests
+    depend on. Safe to run on every build — all operations are idempotent.
 
-    Usage:
-        python manage.py seed_ci
-
-    Credentials are read from env vars TEST_ADMIN_USER / TEST_ADMIN_PASS
-    (injected by Jenkins from the PLAYWRIGHT_ADMIN credential).
+    Env vars consumed (all injected by Jenkins withCredentials):
+        TEST_ADMIN_USER / TEST_ADMIN_PASS    — admin superuser
+        TEST_EMPLOYEE_USER / TEST_EMPLOYEE_PASS — employee portal user
     """
     help = 'Seeds CI database with data required for Playwright tests'
 
@@ -22,6 +19,7 @@ class Command(BaseCommand):
         self._seed_superuser()
         self._seed_main_client()
         self._seed_role_sow()
+        self._seed_employee_user()
         self.stdout.write(self.style.SUCCESS('CI seed complete.'))
 
     # ------------------------------------------------------------------
@@ -33,7 +31,6 @@ class Command(BaseCommand):
             username=username,
             defaults={'email': 'admin@ci.test', 'is_staff': True, 'is_superuser': True},
         )
-        # Always sync the password so rotated Jenkins credentials take effect
         user.set_password(password)
         user.is_staff = True
         user.is_superuser = True
@@ -55,3 +52,37 @@ class Command(BaseCommand):
         )
         if created:
             self.stdout.write(self.style.SUCCESS('Created RoleSow: johndoe'))
+
+    def _seed_employee_user(self):
+        """
+        Creates a regular Django user + linked Employee record for the
+        employee-portal Playwright tests.  Skipped silently if
+        TEST_EMPLOYEE_USER is not set (admin-only test runs).
+        """
+        username = os.environ.get('TEST_EMPLOYEE_USER')
+        password = os.environ.get('TEST_EMPLOYEE_PASS')
+
+        if not username or not password:
+            self.stdout.write('TEST_EMPLOYEE_USER not set — skipping employee seed.')
+            return
+
+        client = MainClient.objects.get(name='Robert')
+
+        user, u_created = User.objects.get_or_create(
+            username=username,
+            defaults={'email': username if '@' in username else f'{username}@ci.test'},
+        )
+        user.set_password(password)
+        user.save(update_fields=['password'])
+
+        emp, e_created = Employee.objects.get_or_create(
+            user=user,
+            defaults={
+                'full_name': 'CI Employee',
+                'email': user.email,
+                'main_account': client,
+            },
+        )
+
+        label = 'Created' if u_created else 'Updated'
+        self.stdout.write(f'{label} employee user: {username}')
