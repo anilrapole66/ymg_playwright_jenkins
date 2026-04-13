@@ -18,4 +18,6 @@ test('Add RoleSow flow', async ({ page }) => {
   await addRoleSow.addRoleSow(roleSow);
 
   await expect(page).toHaveURL(/configurables/);
+
+  test.info().annotations.push({ type: 'roleSowName', description: roleSow.name });
 });

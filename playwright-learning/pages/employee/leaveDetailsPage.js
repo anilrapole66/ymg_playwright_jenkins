@@ -1,7 +1,7 @@
 class LeaveDetailsPage {
     constructor(page){
         this.page= page;
-        this.applyleaveBtn = page.getByRole('link', { name: '＋ Apply Leave' });
+        this.applyleaveBtn = page.getByRole('link', { name: /apply leave/i });
 
       }
 

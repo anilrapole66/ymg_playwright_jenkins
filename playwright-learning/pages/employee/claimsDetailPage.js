@@ -8,6 +8,7 @@ class ClaimsDetailsPage{
     async newClaim(){
             await this.newClaimBtn.click();
             await this.page.waitForURL(/submit/);
+            await this.page.waitForLoadState('domcontentloaded');
         }
 }
 

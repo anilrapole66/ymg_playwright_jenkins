@@ -105,6 +105,21 @@ class EmployeePage {
     console.log(`Deleted client ${clientName}`);
   }
 
+  async deleteRoleSow(roleSowName) {
+    await this.page.goto('/configurables/');
+    await this.page.getByText('Role/SOW').click();
+
+    const row = this.page.locator(`tr:has-text("${roleSowName}")`);
+    if (await row.count() === 0) {
+      console.log(`RoleSow ${roleSowName} not found for cleanup`);
+      return;
+    }
+
+    await row.getByRole('button', { name: /delete/i }).click();
+    await this.page.getByRole('button', { name: /confirm/i }).click();
+    console.log(`Deleted RoleSow ${roleSowName}`);
+  }
+
   async addEmployee(data) {
     await this.id.fill(data.id);
     await this.name.fill(data.name);

@@ -1,20 +1,16 @@
-const { test, expect } = require('@playwright/test');
-const LoginPage = require('../../pages/loginPage');
-const credentials = require('../../utils/credentials');
+const { test } = require('@playwright/test');
 const EmployeeProfilePage = require('../../pages/employee/employeeProfilePage');
 const ClaimDetailsPage = require('../../pages/employee/claimsDetailPage');
 const NewClaimPage = require('../../pages/employee/newClaimPage');
 
-test.use({ storageState: undefined });
-
 test('Employee new claim flow', async ({ page }) => {
-  const login = new LoginPage(page);
   const empProfile = new EmployeeProfilePage(page);
   const claims = new ClaimDetailsPage(page);
   const newClaim = new NewClaimPage(page);
 
-  await login.open();
-  await login.login(credentials.employee.username, credentials.employee.password);
+  // No manual login — employee storageState is injected by the 'employee' project
+  await page.goto('/employee_home/');
+  await page.waitForURL(/employee_home/, { timeout: 10000 });
 
   await empProfile.openMenu();
   await empProfile.claims();

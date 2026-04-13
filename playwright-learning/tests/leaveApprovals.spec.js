@@ -1,4 +1,4 @@
-const { test, expect } = require('./baseTest');
+const { test } = require('./baseTest');
 const EmployeePage = require('../pages/employeePage');
 const LeaveApprovalPage = require('../pages/leaveApprovalPage');
 
@@ -8,5 +8,10 @@ test('Leave Approvals', async ({ page }) => {
 
   await page.goto('/employee_list/');
   await emp.goToLeaveApprovals();
-  await leaveApprove.goToLeaveApprove();
+
+  const approved = await leaveApprove.goToLeaveApprove();
+  test.info().annotations.push({
+    type: 'result',
+    description: approved ? 'Leave request approved' : 'No pending leaves — nothing to approve',
+  });
 });
