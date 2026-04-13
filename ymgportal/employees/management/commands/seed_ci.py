@@ -1,7 +1,7 @@
 import os
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from employees.models import MainClient, RoleSow, Employee
+from employees.models import MainClient, RoleSow, Employee, LeaveType
 
 
 class Command(BaseCommand):
@@ -19,6 +19,7 @@ class Command(BaseCommand):
         self._seed_superuser()
         self._seed_main_client()
         self._seed_role_sow()
+        self._seed_leave_types()
         self._seed_employee_user()
         self.stdout.write(self.style.SUCCESS('CI seed complete.'))
 
@@ -52,6 +53,20 @@ class Command(BaseCommand):
         )
         if created:
             self.stdout.write(self.style.SUCCESS('Created RoleSow: johndoe'))
+
+    def _seed_leave_types(self):
+        default_types = [
+            {'name': 'Annual Leave',   'is_paid': True},
+            {'name': 'Medical Leave',  'is_paid': True},
+            {'name': 'Unpaid Leave',   'is_paid': False},
+        ]
+        for lt in default_types:
+            obj, created = LeaveType.objects.get_or_create(
+                name=lt['name'],
+                defaults={'is_paid': lt['is_paid'], 'is_active': True},
+            )
+            if created:
+                self.stdout.write(self.style.SUCCESS(f"Created LeaveType: {lt['name']}"))
 
     def _seed_employee_user(self):
         """
