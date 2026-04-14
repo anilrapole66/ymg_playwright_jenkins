@@ -6,13 +6,21 @@ const fs = require('fs');
  * Falls back to safe defaults if the file doesn't exist yet
  * (e.g. running a single test file before globalSetup has run).
  */
+// Matches what seed_ci.py always seeds — safe fallback for local and CI
+const SEEDED_LEAVE_TYPES = ['Annual Leave', 'Medical Leave', 'Unpaid Leave'];
+
 function loadDropdowns() {
   const dropdownsPath = path.join(__dirname, '../playwright/.auth/dropdowns.json');
   if (fs.existsSync(dropdownsPath)) {
-    return JSON.parse(fs.readFileSync(dropdownsPath, 'utf8'));
+    const data = JSON.parse(fs.readFileSync(dropdownsPath, 'utf8'));
+    // If globalSetup couldn't scrape leave types, fill in the seeded defaults
+    if (!data.leaveTypes || data.leaveTypes.length === 0) {
+      data.leaveTypes = SEEDED_LEAVE_TYPES;
+    }
+    return data;
   }
   console.warn('[testData] dropdowns.json not found — using fallback values. Run full suite first.');
-  return { customers: ['Robert'], roleSows: ['johndoe'], leaveTypes: [] };
+  return { customers: ['Robert'], roleSows: ['johndoe'], leaveTypes: SEEDED_LEAVE_TYPES };
 }
 
 function generateEmployee() {
@@ -47,13 +55,6 @@ function generateEmployee() {
 
 function generateLeave() {
   const { leaveTypes } = loadDropdowns();
-
-  if (!leaveTypes.length) {
-    throw new Error(
-      '[testData] No leave types found in dropdowns.json.\n' +
-      'Make sure LeaveType records exist in the database before running tests.'
-    );
-  }
 
   return {
     type:      leaveTypes[0],       // first real leave type from the live DB

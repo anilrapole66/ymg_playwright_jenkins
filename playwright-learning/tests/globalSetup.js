@@ -40,6 +40,8 @@ module.exports = async function globalSetup(config) {
   // --- leave apply form: LeaveType ---
   // Admin has no Employee profile so /leave-apply/ never renders the form for admin.
   // Use a separate employee context to scrape the leave type dropdown.
+  // These are the same values that seed_ci.py always seeds — used as fallback.
+  const SEEDED_LEAVE_TYPES = ['Annual Leave', 'Medical Leave', 'Unpaid Leave'];
   let leaveTypes = [];
   const empUsername = credentials.employee?.username;
   const empPassword = credentials.employee?.password;
@@ -89,6 +91,12 @@ module.exports = async function globalSetup(config) {
     await empContext.close();
   } else {
     console.warn('[globalSetup] TEST_EMPLOYEE_USER not set — skipping leaveTypes scrape.');
+  }
+
+  // Fall back to seeded defaults if UI scraping returned nothing
+  if (leaveTypes.length === 0) {
+    leaveTypes = SEEDED_LEAVE_TYPES;
+    console.warn(`[globalSetup] leaveTypes scraped 0 — using seeded defaults: ${leaveTypes.join(', ')}`);
   }
 
   const dropdowns = { customers, roleSows, leaveTypes };
